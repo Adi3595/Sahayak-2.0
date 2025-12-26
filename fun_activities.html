@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sahayak - Fun Learning Activities Generator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #7c3aed;
+            --primary-light: #8b5cf6;
+            --primary-dark: #6d28d9;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --background: #0f0f23;
+            --surface: #1a1a2e;
+            --text: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        .font-heading {
+            font-family: 'Manrope', sans-serif;
+        }
+        
+        /* Custom animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .animate-pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.8s ease-out forwards;
+        }
+        
+        /* Glass effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 200% 200%;
+            animation: gradient 8s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 5px;
+        }
+        
+        /* Card hover effects */
+        .feature-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s;
+        }
+        
+        .feature-card:hover::before {
+            left: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
+        }
+        
+        /* Button effects */
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        /* Grid background pattern */
+        .grid-pattern {
+            background-image: 
+                linear-gradient(rgba(124, 58, 237, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 58, 237, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        /* Sidebar Styles - Enhanced */
+        .sidebar {
+            width: 280px !important;
+            background: var(--surface);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: none !important;
+        }
+        
+        .sidebar-header {
+            padding: 25px 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+            flex-shrink: 0;
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar.collapsed .logo-text {
+            opacity: 0;
+            width: 0;
+        }
+        
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 6s ease infinite;
+            line-height: 1.2;
+        }
+        
+        .logo-text span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+        
+        .sidebar-toggle {
+            position: absolute;
+            top: 50%;
+            right: -12px;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid var(--surface);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar-toggle:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+        }
+        
+        .sidebar-toggle i {
+            color: white;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-toggle {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .sidebar-toggle i {
+            transform: rotate(180deg);
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 25px 15px;
+            overflow-y: auto;
+        }
+        
+        .nav-section {
+            margin-bottom: 25px;
+        }
+        
+        .nav-title {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 15px 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar.collapsed .nav-title {
+            opacity: 0;
+        }
+        
+        .nav-list {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 5px;
+            position: relative;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link:hover {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--text);
+            transform: translateX(5px);
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+        
+        .nav-icon {
+            font-size: 1.25rem;
+            min-width: 24px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+        
+        .nav-link:hover .nav-icon {
+            transform: scale(1.1);
+        }
+        
+        .nav-text {
+            font-weight: 500;
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            width: 0;
+        }
+        
+        .nav-badge {
+            background: var(--secondary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+            margin-left: auto;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar.collapsed .nav-badge {
+            opacity: 0;
+        }
+        
+        /* Tooltips for collapsed sidebar */
+        .nav-link::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%) translateX(10px);
+            background: var(--surface);
+            color: var(--text);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar.collapsed .nav-link:hover::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(-50%) translateX(15px);
+        }
+        
+        /* Mobile Toggle Button */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            border-radius: 12px;
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .mobile-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(124, 58, 237, 0.4);
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            transition: none !important;
+        }
+
+        /* Activity Preview Styles */
+        .preview-area {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            min-height: 200px;
+            padding: 25px;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            overflow-y: auto;
+        }
+        
+        .preview-placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 60px 20px;
+        }
+        
+        .preview-placeholder i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .activity-preview {
+            background: var(--surface);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Template Cards */
+        .template-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .template-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Activity Grid */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .activity-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s;
+        }
+        
+        .activity-card:hover::before {
+            left: 100%;
+        }
+        
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border-color: var(--secondary);
+        }
+        
+        .activity-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: var(--text);
+            transition: all 0.3s;
+        }
+        
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Success/Error Messages */
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+            border-left: 4px solid #EF4444;
+        }
+        
+        /* Generated Activity Content Styling */
+        .activity-content {
+            line-height: 1.8;
+            color: var(--text);
+        }
+        
+        .activity-content h2, .activity-content h3, .activity-content h4 {
+            color: var(--text);
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 700;
+        }
+        
+        .activity-content h2 {
+            font-size: 1.75rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+        }
+        
+        .activity-content h3 {
+            font-size: 1.5rem;
+            color: var(--primary-light);
+        }
+        
+        .activity-content h4 {
+            font-size: 1.25rem;
+            color: var(--accent);
+        }
+        
+        .activity-content p {
+            margin-bottom: 1em;
+            color: var(--text-secondary);
+        }
+        
+        .activity-content ul, .activity-content ol {
+            margin-left: 1.5em;
+            margin-bottom: 1.5em;
+            color: var(--text-secondary);
+        }
+        
+        .activity-content li {
+            margin-bottom: 0.5em;
+            position: relative;
+        }
+        
+        .activity-content ul li::before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .activity-content ol {
+            counter-reset: item;
+        }
+        
+        .activity-content ol li {
+            counter-increment: item;
+        }
+        
+        .activity-content ol li::before {
+            content: counter(item) ".";
+            color: var(--primary);
+            font-weight: bold;
+            position: absolute;
+            left: -1.5em;
+        }
+        
+        .activity-content strong {
+            color: var(--text);
+            font-weight: 700;
+        }
+        
+        .activity-content em {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .activity-content blockquote {
+            border-left: 4px solid var(--secondary);
+            padding-left: 16px;
+            margin-left: 0;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+        
+        .activity-content .highlight-box {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 1em 0;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-toggle {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                padding: 20px;
+            }
+            
+            .mobile-toggle {
+                display: flex;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .activity-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-templates {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#0f0f23] text-gray-100">
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" id="mobileToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
+        
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="logo-text">
+                    <h1 class="gradient-text">Sahayak</h1>
+                    <span>AI Teaching Assistant</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar-nav">
+            <!-- Main Navigation -->
+            <div class="nav-section">
+                <div class="nav-title">Main Navigation</div>
+                <ul class="nav-list">
+                    <li class="nav-item"></li>
+                        <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10">
+                            <i class="fas fa-home"></i>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Differentiated_materials.html" class="nav-link" data-tooltip="Materials">
+                            <i class="fas fa-layer-group nav-icon"></i>
+                            <span class="nav-text">Materials</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="/fun_activities.html" class="nav-link active" data-tooltip="Fun Activities">
+                            <i class="fas fa-gamepad nav-icon"></i>
+                            <span class="nav-text">Fun Activities</span>
+                            <span class="nav-badge">NEW</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/knowledge_base.html" class="nav-link" data-tooltip="Knowledge Base">
+                            <i class="fas fa-lightbulb nav-icon"></i>
+                            <span class="nav-text">Knowledge Base</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/lesson_planning.html" class="nav-link" data-tooltip="Lesson Planning">
+                            <i class="fas fa-book nav-icon"></i>
+                            <span class="nav-text">Lesson Planning</span>
+                            <span class="nav-badge">AI</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/blackboard_diagrams.html" class="nav-link" data-tooltip="Dashboard">
+                            <i class="fas fa-chalkboard nav-icon"></i>
+                            <span class="nav-text">Visual Aids Creator</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Student_tracking.html" class="nav-link" data-tooltip="Analytics">
+                            <i class="fas fa-chart-line nav-icon"></i>
+                            <span class="nav-text">Progress Tracking</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Account Section -->
+            <div class="nav-section">
+                <div class="nav-title">Account</div>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/profile.html" class="nav-link" data-tooltip="Profile">
+                            <i class="fas fa-user nav-icon"></i>
+                            <span class="nav-text">Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/settings.html" class="nav-link" data-tooltip="Settings">
+                            <i class="fas fa-cog nav-icon"></i>
+                            <span class="nav-text">Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/help.html" class="nav-link" data-tooltip="Help & Support">
+                            <i class="fas fa-question-circle nav-icon"></i>
+                            <span class="nav-text">Help & Support</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer p-4">
+            <div class="glass rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-emerald-500 flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-semibold">Teacher Dashboard</div>
+                        <div class="text-xs text-gray-400">Premium Access</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="mb-12">
+            <div class="relative">
+                <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse-glow"></div>
+                <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl animate-pulse-glow" style="animation-delay: 1s;"></div>
+                
+                <div class="relative z-10 text-center mb-8">
+                    <div class="flex items-center justify-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-600 to-emerald-500 flex items-center justify-center">
+                            <i class="fas fa-gamepad text-white text-2xl"></i>
+                        </div>
+                        <h1 class="text-5xl md:text-6xl font-bold font-heading">
+                            <span class="gradient-text">Fun Learning</span><br>
+                            <span>Activities & Games</span>
+                        </h1>
+                    </div>
+                    <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                        Create interactive and engaging activities tailored to your curriculum and available resources. 
+                        Powered by AI to make learning fun for every student.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activity Generator Card -->
+        <div class="glass rounded-2xl p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6 font-heading flex items-center gap-3">
+                <i class="fas fa-wand-magic-sparkles gradient-text"></i>
+                <span>AI Activity Generator</span>
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div class="form-group">
+                    <label for="subject">Subject Area</label>
+                    <select id="subject" class="w-full glass rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500">
+                        <option value="">Select Subject</option>
+                        <option value="math">Mathematics</option>
+                        <option value="science">Science</option>
+                        <option value="english">English Language Arts</option>
+                        <option value="history">History/Social Studies</option>
+                        <option value="art">Art & Creative Arts</option>
+                        <option value="music">Music</option>
+                        <option value="pe">Physical Education</option>
+                        <option value="computer">Computer Science</option>
+                        <option value="language">Foreign Languages</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="topic">Learning Topic/Concept</label>
+                    <input type="text" id="topic" placeholder="e.g., Photosynthesis, Fractions, World War II" 
+                           class="w-full glass rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gradeLevel">Grade Level</label>
+                    <select id="gradeLevel" class="w-full glass rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500">
+                        <option value="">Select Grade Level</option>
+                        <option value="k-2">Kindergarten - 2nd Grade</option>
+                        <option value="3-5">3rd - 5th Grade</option>
+                        <option value="6-8">6th - 8th Grade</option>
+                        <option value="9-12">9th - 12th Grade</option>
+                        <option value="college">College/University</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="activityType">Preferred Activity Type</label>
+                    <select id="activityType" class="w-full glass rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500">
+                        <option value="">Any Type</option>
+                        <option value="game">Classroom Game</option>
+                        <option value="group">Group Activity</option>
+                        <option value="individual">Individual Activity</option>
+                        <option value="digital">Digital/Online Activity</option>
+                        <option value="hands-on">Hands-on Project</option>
+                        <option value="discussion">Discussion-Based</option>
+                        <option value="creative">Creative/Artistic</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="duration">Available Time</label>
+                    <select id="duration" class="w-full glass rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500">
+                        <option value="">Any Duration</option>
+                        <option value="5-15">5-15 minutes (Quick activity)</option>
+                        <option value="15-30">15-30 minutes (Short activity)</option>
+                        <option value="30-60">30-60 minutes (Full lesson activity)</option>
+                        <option value="60+">60+ minutes (Extended project)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label for="resources">Available Resources</label>
+                <textarea id="resources" 
+                          placeholder="Describe available resources (e.g., computers, art supplies, outdoor space, whiteboards, tablets, etc.)" 
+                          rows="3"
+                          class="w-full glass rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500"></textarea>
+            </div>
+            
+            <div class="mb-8">
+                <label for="learningObjective">Learning Objective</label>
+                <textarea id="learningObjective" 
+                          placeholder="What should students learn or practice through this activity?" 
+                          rows="3"
+                          class="w-full glass rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500"></textarea>
+            </div>
+            
+            <button id="generateActivityBtn" class="w-full btn-primary bg-gradient-to-r from-purple-600 to-emerald-500 rounded-xl py-4 font-semibold text-lg hover:shadow-lg hover:shadow-purple-500/30 transition-all">
+                <i class="fas fa-sparkles mr-2"></i> Generate Fun Activity
+            </button>
+            
+            <div class="loading hidden" id="activityLoading">
+                <div class="spinner"></div>
+                <p class="mt-4">Creating engaging learning activity...</p>
+                <p class="text-gray-400 text-sm mt-2">This may take a few moments as we design the perfect activity</p>
+            </div>
+            
+            <div class="success-message hidden" id="activitySuccess">
+                <i class="fas fa-check-circle mr-2"></i> Activity generated successfully!
+            </div>
+            
+            <div class="error-message hidden" id="activityError">
+                <i class="fas fa-exclamation-circle mr-2"></i> <span id="activityErrorText"></span>
+            </div>
+        </div>
+
+        <!-- Activity Preview Area -->
+        <div class="preview-area mb-8">
+            <div class="preview-placeholder" id="activityPreviewPlaceholder">
+                <i class="fas fa-gamepad"></i>
+                <p class="text-xl mt-4">Fill out the form above to generate a fun learning activity!</p>
+                <p class="text-gray-400 mt-2">AI will create customized activities based on your inputs</p>
+            </div>
+            
+            <div class="preview-content hidden" id="activityPreviewContent">
+                <!-- Activity content will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Quick Activity Templates -->
+        <div class="glass rounded-2xl p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6 font-heading flex items-center gap-3">
+                <i class="fas fa-bolt gradient-text"></i>
+                <span>Quick Activity Templates</span>
+            </h2>
+            <p class="text-gray-400 mb-6">Need inspiration? Try these ready-to-use activity templates:</p>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="template-card" data-template="quiz-game">
+                    <div class="activity-icon mb-4">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Quiz Game Show</h3>
+                    <p class="text-gray-400 mb-4">Turn review into a game show with teams and points</p>
+                    <span class="badge">Group Activity</span>
+                </div>
+                
+                <div class="template-card" data-template="scavenger-hunt">
+                    <div class="activity-icon mb-4">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Learning Scavenger Hunt</h3>
+                    <p class="text-gray-400 mb-4">Students search for information or objects related to your topic</p>
+                    <span class="badge">Interactive</span>
+                </div>
+                
+                <div class="template-card" data-template="role-play">
+                    <div class="activity-icon mb-4">
+                        <i class="fas fa-theater-masks"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Role-Play Activity</h3>
+                    <p class="text-gray-400 mb-4">Students act out scenarios related to your subject</p>
+                    <span class="badge">Creative</span>
+                </div>
+                
+                <div class="template-card" data-template="puzzle">
+                    <div class="activity-icon mb-4">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Puzzle Challenge</h3>
+                    <p class="text-gray-400 mb-4">Crosswords, word searches, or logic puzzles with learning content</p>
+                    <span class="badge">Individual</span>
+                </div>
+                
+                <div class="template-card" data-template="debate">
+                    <div class="activity-icon mb-4">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Classroom Debate</h3>
+                    <p class="text-gray-400 mb-4">Structured debate on topics related to your subject</p>
+                    <span class="badge">Discussion</span>
+                </div>
+                
+                <div class="template-card" data-template="creation">
+                    <div class="activity-icon mb-4">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Creation Station</h3>
+                    <p class="text-gray-400 mb-4">Students create something tangible related to the learning objective</p>
+                    <span class="badge">Hands-on</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popular Activity Ideas -->
+        <div class="glass rounded-2xl p-8">
+            <h2 class="text-3xl font-bold mb-6 font-heading flex items-center gap-3">
+                <i class="fas fa-lightbulb gradient-text"></i>
+                <span>Popular Activity Ideas</span>
+            </h2>
+            
+            <div class="activity-grid">
+                <div class="activity-card">
+                    <div class="activity-icon">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Escape Room Challenge</h3>
+                    <p class="text-gray-400 mb-4">Create a classroom escape room where students solve subject-related puzzles to "escape"</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Time: 30-60 min</span>
+                        <span class="badge">Group Activity</span>
+                    </div>
+                </div>
+                
+                <div class="activity-card">
+                    <div class="activity-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Think-Pair-Share</h3>
+                    <p class="text-gray-400 mb-4">Students think individually, discuss with a partner, then share with the class</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Time: 10-20 min</span>
+                        <span class="badge">Discussion</span>
+                    </div>
+                </div>
+                
+                <div class="activity-card">
+                    <div class="activity-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Concept Mapping</h3>
+                    <p class="text-gray-400 mb-4">Students create visual maps connecting concepts and ideas</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Time: 20-40 min</span>
+                        <span class="badge">Individual</span>
+                    </div>
+                </div>
+                
+                <div class="activity-card">
+                    <div class="activity-icon">
+                        <i class="fas fa-theater-masks"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Historical Reenactment</h3>
+                    <p class="text-gray-400 mb-4">Students act out historical events or literary scenes</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Time: 40-60 min</span>
+                        <span class="badge">Creative</span>
+                    </div>
+                </div>
+                
+                <div class="activity-card">
+                    <div class="activity-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Digital Scavenger Hunt</h3>
+                    <p class="text-gray-400 mb-4">Using devices to find and verify information online</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Time: 20-30 min</span>
+                        <span class="badge">Digital</span>
+                    </div>
+                </div>
+                
+                <div class="activity-card">
+                    <div class="activity-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Data Analysis Challenge</h3>
+                    <p class="text-gray-400 mb-4">Students analyze real or simulated data to draw conclusions</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Time: 30-45 min</span>
+                        <span class="badge">Hands-on</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 pt-8 border-t border-white/10 text-center text-gray-500">
+            <p>Sahayak AI &copy; 2023</p>
+        </footer>
+    </main>
+
+    <script>
+        // Backend API URL - Connect to your FastAPI backend
+        const API_BASE_URL = 'http://localhost:8000'; // Change this to match your backend URL
+        
+        // Activity state management
+        let currentActivity = null;
+        let generatedActivities = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar functionality
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.getElementById('mobileToggle');
+            
+            // Mobile menu toggle
+            mobileToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                this.querySelector('i').classList.toggle('fa-bars');
+                this.querySelector('i').classList.toggle('fa-times');
+            });
+            
+            // Close mobile sidebar when clicking outside
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 1024) {
+                    if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                        sidebar.classList.remove('active');
+                        mobileToggle.querySelector('i').classList.remove('fa-times');
+                        mobileToggle.querySelector('i').classList.add('fa-bars');
+                    }
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 1024) {
+                    sidebar.classList.remove('active');
+                    mobileToggle.querySelector('i').classList.remove('fa-times');
+                    mobileToggle.querySelector('i').classList.add('fa-bars');
+                }
+            });
+
+            // Initialize sidebar as expanded
+            sidebar.classList.remove('collapsed');
+            
+            // DOM Elements
+            const generateActivityBtn = document.getElementById('generateActivityBtn');
+            const activityLoading = document.getElementById('activityLoading');
+            const activitySuccess = document.getElementById('activitySuccess');
+            const activityError = document.getElementById('activityError');
+            const activityErrorText = document.getElementById('activityErrorText');
+            const activityPreviewPlaceholder = document.getElementById('activityPreviewPlaceholder');
+            const activityPreviewContent = document.getElementById('activityPreviewContent');
+            const templateCards = document.querySelectorAll('.template-card');
+            
+            // Form Elements
+            const subjectSelect = document.getElementById('subject');
+            const topicInput = document.getElementById('topic');
+            const gradeLevelSelect = document.getElementById('gradeLevel');
+            const activityTypeSelect = document.getElementById('activityType');
+            const durationSelect = document.getElementById('duration');
+            const resourcesTextarea = document.getElementById('resources');
+            const learningObjectiveTextarea = document.getElementById('learningObjective');
+            
+            // Example topics based on subject for auto-suggest
+            const topicExamples = {
+                'math': ['Fractions', 'Algebra', 'Geometry', 'Calculus', 'Statistics', 'Multiplication', 'Division', 'Trigonometry', 'Probability'],
+                'science': ['Photosynthesis', 'Solar System', 'Cells', 'Ecosystems', 'Chemistry Basics', 'Physics Principles', 'Human Body', 'Weather', 'Electricity'],
+                'english': ['Grammar', 'Creative Writing', 'Poetry', 'Shakespeare', 'Essay Structure', 'Vocabulary Building', 'Reading Comprehension', 'Storytelling'],
+                'history': ['World War II', 'Ancient Civilizations', 'American Revolution', 'Government Systems', 'Historical Figures', 'Geography', 'Cultural Studies'],
+                'art': ['Color Theory', 'Perspective Drawing', 'Art History', 'Creative Expression', 'Mixed Media', 'Sculpture', 'Painting Techniques'],
+                'music': ['Music Theory', 'Composition', 'Instruments', 'Music History', 'Rhythm and Beat', 'Singing Techniques', 'Music Genres']
+            };
+            
+            // Show example topics when subject is selected
+            subjectSelect.addEventListener('change', function() {
+                const examples = topicExamples[this.value];
+                if (examples) {
+                    topicInput.placeholder = `e.g., ${examples.join(', ')}`;
+                } else {
+                    topicInput.placeholder = 'e.g., Your specific topic here';
+                }
+            });
+            
+            // Generate activity button handler - CONNECTED TO BACKEND
+            generateActivityBtn.addEventListener('click', async function() {
+                // Get form values
+                const subject = subjectSelect.value;
+                const topic = topicInput.value.trim();
+                const gradeLevel = gradeLevelSelect.value;
+                const activityType = activityTypeSelect.value;
+                const duration = durationSelect.value;
+                const resources = resourcesTextarea.value.trim();
+                const learningObjective = learningObjectiveTextarea.value.trim();
+                
+                // Validation
+                if (!subject) {
+                    showActivityError('Please select a subject area.');
+                    return;
+                }
+                
+                if (!topic) {
+                    showActivityError('Please enter a learning topic.');
+                    return;
+                }
+                
+                if (!gradeLevel) {
+                    showActivityError('Please select a grade level.');
+                    return;
+                }
+                
+                // Prepare request data
+                const requestData = {
+                    subject: subject,
+                    topic: topic,
+                    grade_level: gradeLevel,
+                    activity_type: activityType || null,
+                    duration: duration || null,
+                    resources: resources || "",
+                    learning_objective: learningObjective || ""
+                };
+                
+                // Start loading state
+                startLoading();
+                
+                try {
+                    console.log('Sending request to backend:', requestData);
+                    
+                    // Send request to FastAPI backend
+                    const response = await fetch(`${API_BASE_URL}/generate-activity/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams(requestData)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('Backend error:', errorText);
+                        throw new Error(`Server error: ${response.status} - ${errorText}`);
+                    }
+                    
+                    const result = await response.json();
+                    console.log('Backend response:', result);
+                    
+                    // Stop loading state
+                    stopLoading();
+                    
+                    if (result.status === 'success') {
+                        // Store current activity
+                        currentActivity = {
+                            ...result,
+                            formData: requestData,
+                            generated_at: new Date().toISOString()
+                        };
+                        
+                        // Add to history
+                        generatedActivities.push(currentActivity);
+                        
+                        // Save to local storage
+                        saveToLocalStorage(currentActivity);
+                        
+                        // Display result
+                        showSuccess('Activity generated successfully!');
+                        displayActivityResult(currentActivity);
+                        
+                    } else {
+                        throw new Error(result.message || 'Failed to generate activity');
+                    }
+                    
+                } catch (error) {
+                    console.error('Activity generation error:', error);
+                    stopLoading();
+                    showActivityError(`Failed to generate activity: ${error.message}`);
+                }
+            });
+            
+            // Template card click handlers
+            templateCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const templateType = this.getAttribute('data-template');
+                    applyTemplate(templateType);
+                    
+                    // Visual feedback
+                    this.classList.add('ring-2', 'ring-purple-500');
+                    setTimeout(() => {
+                        this.classList.remove('ring-2', 'ring-purple-500');
+                    }, 500);
+                });
+            });
+            
+            // Keyboard shortcut for generation (Ctrl/Cmd + Enter)
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    generateActivityBtn.click();
+                }
+            });
+            
+            // Load previously generated activities from localStorage
+            loadFromLocalStorage();
+            
+            // Initialize with example data for testing (optional)
+            initializeExampleData();
+            
+            // ========== HELPER FUNCTIONS ==========
+            
+            function startLoading() {
+                activityLoading.classList.remove('hidden');
+                activityError.classList.add('hidden');
+                activitySuccess.classList.add('hidden');
+                generateActivityBtn.disabled = true;
+                generateActivityBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating...';
+            }
+            
+            function stopLoading() {
+                activityLoading.classList.add('hidden');
+                generateActivityBtn.disabled = false;
+                generateActivityBtn.innerHTML = '<i class="fas fa-sparkles mr-2"></i> Generate Fun Activity';
+            }
+            
+            function showSuccess(message) {
+                activitySuccess.textContent = message || 'Activity generated successfully!';
+                activitySuccess.classList.remove('hidden');
+                setTimeout(() => {
+                    activitySuccess.classList.add('hidden');
+                }, 3000);
+            }
+            
+            function showActivityError(message) {
+                activityErrorText.textContent = message;
+                activityError.classList.remove('hidden');
+                activitySuccess.classList.add('hidden');
+                
+                // Scroll to error message
+                activityError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            function displayActivityResult(result) {
+                activityPreviewPlaceholder.classList.add('hidden');
+                activityPreviewContent.classList.remove('hidden');
+                
+                // Get activity data
+                const activityData = {
+                    topic: result.topic || result.formData?.topic,
+                    subject: result.subject || result.formData?.subject,
+                    grade_level: result.grade_level || result.formData?.grade_level,
+                    activity_type: result.activity_type || result.formData?.activity_type || 'Mixed',
+                    content: result.activity || result.explanation || 'No activity content generated.',
+                    generated_at: result.generated_at || new Date().toLocaleString()
+                };
+                
+                // Format the activity content
+                const formattedContent = formatActivityContent(activityData.content);
+                
+                activityPreviewContent.innerHTML = `
+                    <div class="activity-preview animate-fade-in">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-2xl font-bold flex items-center gap-3">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <span>${activityData.topic} - Fun Learning Activity</span>
+                                </h3>
+                                <p class="text-gray-400 mt-2">Generated on ${new Date(activityData.generated_at).toLocaleString()}</p>
+                            </div>
+                            <button class="glass rounded-lg px-4 py-2 hover:bg-white/10" id="closePreviewBtn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 glass rounded-xl">
+                            <div class="text-center">
+                                <div class="text-sm text-gray-400">Subject</div>
+                                <div class="font-semibold">${activityData.subject}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm text-gray-400">Grade Level</div>
+                                <div class="font-semibold">${activityData.grade_level}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm text-gray-400">Activity Type</div>
+                                <div class="font-semibold">${activityData.activity_type}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-content bg-[#1a1a2e] p-6 rounded-xl border border-white/10">
+                            ${formattedContent}
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-4 mt-8">
+                            <button class="btn-primary bg-gradient-to-r from-purple-600 to-emerald-500 rounded-xl px-6 py-3 font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center" id="saveActivityBtn">
+                                <i class="fas fa-save mr-2"></i> Save Activity Plan
+                            </button>
+                            <button class="glass rounded-xl px-6 py-3 font-semibold hover:bg-white/10 transition-colors flex items-center" id="generateAnotherBtn">
+                                <i class="fas fa-sync mr-2"></i> Generate Another
+                            </button>
+                            <button class="glass rounded-xl px-6 py-3 font-semibold hover:bg-white/10 transition-colors flex items-center" id="downloadActivityBtn">
+                                <i class="fas fa-download mr-2"></i> Download as Text
+                            </button>
+                            <button class="glass rounded-xl px-6 py-3 font-semibold hover:bg-white/10 transition-colors flex items-center" id="copyActivityBtn">
+                                <i class="fas fa-copy mr-2"></i> Copy to Clipboard
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Add event listeners to preview buttons
+                document.getElementById('closePreviewBtn').addEventListener('click', resetPreview);
+                document.getElementById('saveActivityBtn').addEventListener('click', () => saveActivityToStorage(currentActivity));
+                document.getElementById('generateAnotherBtn').addEventListener('click', resetPreview);
+                document.getElementById('downloadActivityBtn').addEventListener('click', () => downloadActivity(currentActivity));
+                document.getElementById('copyActivityBtn').addEventListener('click', () => copyActivityToClipboard(currentActivity));
+            }
+            
+            function formatActivityContent(content) {
+                if (!content) return '<p class="text-gray-400 text-center py-8">No activity content available.</p>';
+                
+                // Split into sections based on common patterns
+                const sections = content.split(/\n\s*\n/);
+                
+                let formattedHTML = '';
+                
+                sections.forEach(section => {
+                    section = section.trim();
+                    if (!section) return;
+                    
+                    // Check for headers (lines ending with colon or numbered sections)
+                    if (section.includes(':') && section.split(':')[0].length < 50) {
+                        const [header, ...rest] = section.split(':');
+                        formattedHTML += `<h3 class="text-xl font-bold mt-6 mb-3 text-white border-l-4 border-purple-500 pl-4 py-2">${header.trim()}</h3>`;
+                        
+                        if (rest.length > 0) {
+                            const content = rest.join(':').trim();
+                            formattedHTML += formatSectionContent(content);
+                        }
+                    } 
+                    // Check for numbered lists (lines starting with numbers)
+                    else if (/^\d+\./.test(section)) {
+                        formattedHTML += formatNumberedList(section);
+                    }
+                    // Check for bullet lists (lines starting with -, *, •)
+                    else if (/^[-*•]/.test(section)) {
+                        formattedHTML += formatBulletList(section);
+                    }
+                    // Regular paragraph
+                    else {
+                        formattedHTML += `<p class="mb-4 text-gray-300 leading-relaxed">${formatText(section)}</p>`;
+                    }
+                });
+                
+                return formattedHTML;
+            }
+            
+            function formatSectionContent(content) {
+                // Check for lists within the content
+                if (content.includes('\n- ') || content.includes('\n* ') || content.includes('\n• ')) {
+                    return formatBulletList(content);
+                } else if (content.includes('\n1. ') || content.includes('\n2. ') || content.includes('\n3. ')) {
+                    return formatNumberedList(content);
+                } else {
+                    return `<p class="mb-4 text-gray-300 leading-relaxed">${formatText(content)}</p>`;
+                }
+            }
+            
+            function formatBulletList(content) {
+                const items = content.split('\n')
+                    .filter(line => line.trim().match(/^[-*•]\s+/))
+                    .map(line => line.replace(/^[-*•]\s+/, '').trim());
+                
+                if (items.length === 0) return '';
+                
+                return `<ul class="list-disc pl-6 my-4 space-y-2">${items.map(item => 
+                    `<li class="text-gray-300">${formatText(item)}</li>`
+                ).join('')}</ul>`;
+            }
+            
+            function formatNumberedList(content) {
+                const items = content.split('\n')
+                    .filter(line => line.trim().match(/^\d+\.\s+/))
+                    .map(line => line.replace(/^\d+\.\s+/, '').trim());
+                
+                if (items.length === 0) return '';
+                
+                return `<ol class="list-decimal pl-6 my-4 space-y-2">${items.map(item => 
+                    `<li class="text-gray-300">${formatText(item)}</li>`
+                ).join('')}</ol>`;
+            }
+            
+            function formatText(text) {
+                // Handle bold text
+                text = text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-white">$1</strong>');
+                
+                // Handle italic text
+                text = text.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+                
+                // Handle line breaks
+                text = text.replace(/\n/g, '<br>');
+                
+                return text;
+            }
+            
+            function resetPreview() {
+                activityPreviewContent.innerHTML = '';
+                activityPreviewContent.classList.add('hidden');
+                activityPreviewPlaceholder.classList.remove('hidden');
+                currentActivity = null;
+            }
+            
+            function applyTemplate(templateType) {
+                const templates = {
+                    'quiz-game': {
+                        activityType: 'game',
+                        duration: '15-30',
+                        resources: 'Whiteboard, markers, timer, buzzers (optional), scoreboard',
+                        learningObjective: 'Review and reinforce key concepts through competitive gameplay and recall'
+                    },
+                    'scavenger-hunt': {
+                        activityType: 'game',
+                        duration: '30-60',
+                        resources: 'Printed clues, classroom space, timer, small prizes (optional)',
+                        learningObjective: 'Develop problem-solving skills, collaborative learning, and information gathering'
+                    },
+                    'role-play': {
+                        subject: 'english',
+                        activityType: 'creative',
+                        duration: '30-60',
+                        resources: 'Props (optional), character cards, scenario descriptions, costume pieces',
+                        learningObjective: 'Enhance communication skills, empathy, and understanding through character embodiment'
+                    },
+                    'puzzle': {
+                        subject: 'math',
+                        activityType: 'individual', 
+                        duration: '15-30',
+                        resources: 'Printed worksheets, pencils, calculators (optional), puzzle pieces',
+                        learningObjective: 'Develop logical thinking, pattern recognition, and problem-solving abilities'
+                    },
+                    'debate': {
+                        subject: 'history',
+                        activityType: 'discussion',
+                        duration: '30-60',
+                        resources: 'Topic cards, timer, scoring sheets, research materials',
+                        learningObjective: 'Improve critical thinking, research skills, persuasive speaking, and listening skills'
+                    },
+                    'creation': {
+                        subject: 'art',
+                        activityType: 'creative',
+                        duration: '30-60',
+                        resources: 'Art supplies (paper, markers, glue, scissors, clay, paint, etc.)',
+                        learningObjective: 'Encourage creativity, hands-on expression, and conceptual understanding through art'
+                    }
+                };
+                
+                const template = templates[templateType];
+                if (template) {
+                    if (template.subject) {
+                        subjectSelect.value = template.subject;
+                    }
+                    activityTypeSelect.value = template.activityType;
+                    durationSelect.value = template.duration;
+                    
+                    if (template.resources && resourcesTextarea) {
+                        resourcesTextarea.value = template.resources;
+                    }
+                    
+                    if (template.learningObjective && learningObjectiveTextarea) {
+                        learningObjectiveTextarea.value = template.learningObjective;
+                    }
+                    
+                    // Show feedback
+                    const originalText = generateActivityBtn.innerHTML;
+                    generateActivityBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Template Applied!';
+                    generateActivityBtn.classList.add('bg-green-600');
+                    
+                    setTimeout(() => {
+                        generateActivityBtn.innerHTML = originalText;
+                        generateActivityBtn.classList.remove('bg-green-600');
+                    }, 2000);
+                }
+            }
+            
+            function saveActivityToStorage(activity) {
+                try {
+                    const savedActivities = JSON.parse(localStorage.getItem('sahayak_activities') || '[]');
+                    savedActivities.push({
+                        ...activity,
+                        saved_at: new Date().toISOString()
+                    });
+                    
+                    // Keep only last 100 activities
+                    const limitedActivities = savedActivities.slice(-100);
+                    localStorage.setItem('sahayak_activities', JSON.stringify(limitedActivities));
+                    
+                    // Show success feedback
+                    const saveBtn = document.getElementById('saveActivityBtn');
+                    const originalText = saveBtn.innerHTML;
+                    saveBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+                    saveBtn.classList.add('bg-green-600');
+                    
+                    setTimeout(() => {
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.classList.remove('bg-green-600');
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Error saving activity:', error);
+                    alert('Failed to save activity. Please try again.');
+                }
+            }
+            
+            function saveToLocalStorage(activity) {
+                try {
+                    const history = JSON.parse(localStorage.getItem('activity_history') || '[]');
+                    history.unshift(activity);
+                    
+                    // Keep only last 50 activities
+                    const limitedHistory = history.slice(0, 50);
+                    localStorage.setItem('activity_history', JSON.stringify(limitedHistory));
+                } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                }
+            }
+            
+            function loadFromLocalStorage() {
+                try {
+                    const history = JSON.parse(localStorage.getItem('activity_history') || '[]');
+                    if (history.length > 0) {
+                        console.log(`Loaded ${history.length} activities from history`);
+                        generatedActivities = history;
+                    }
+                } catch (error) {
+                    console.error('Error loading from localStorage:', error);
+                }
+            }
+            
+            function downloadActivity(activity) {
+                try {
+                    const activityData = activity || currentActivity;
+                    if (!activityData) {
+                        alert('No activity to download');
+                        return;
+                    }
+                    
+                    const content = activityData.activity || activityData.content || '';
+                    const plainText = content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+                    
+                    const downloadText = `
+SAHAYAK AI - FUN LEARNING ACTIVITY
+===================================
+
+TOPIC: ${activityData.topic || activityData.formData?.topic}
+SUBJECT: ${activityData.subject || activityData.formData?.subject}
+GRADE LEVEL: ${activityData.grade_level || activityData.formData?.grade_level}
+ACTIVITY TYPE: ${activityData.activity_type || activityData.formData?.activity_type || 'Mixed'}
+GENERATED: ${activityData.generated_at || new Date().toLocaleString()}
+
+RESOURCES: ${activityData.formData?.resources || 'Standard classroom materials'}
+OBJECTIVE: ${activityData.formData?.learning_objective || 'Make learning engaging and memorable'}
+
+ACTIVITY DETAILS:
+${plainText}
+
+---
+Sahayak AI Teaching Assistant
+Making Learning Fun & Engaging
+Generated on ${new Date().toLocaleDateString()}
+                    `.trim();
+                    
+                    const blob = new Blob([downloadText], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Activity_${(activityData.topic || 'Untitled').replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    // Show feedback
+                    const downloadBtn = document.getElementById('downloadActivityBtn');
+                    const originalText = downloadBtn.innerHTML;
+                    downloadBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Downloaded!';
+                    
+                    setTimeout(() => {
+                        downloadBtn.innerHTML = originalText;
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Download error:', error);
+                    alert('Failed to download activity. Please try again.');
+                }
+            }
+            
+            function copyActivityToClipboard(activity) {
+                try {
+                    const activityData = activity || currentActivity;
+                    if (!activityData) {
+                        alert('No activity to copy');
+                        return;
+                    }
+                    
+                    const content = activityData.activity || activityData.content || '';
+                    const plainText = content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+                    
+                    const textToCopy = `
+${activityData.topic || activityData.formData?.topic} - Learning Activity
+
+${plainText}
+
+--- 
+Generated by Sahayak AI Teaching Assistant
+                    `.trim();
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const copyBtn = document.getElementById('copyActivityBtn');
+                        const originalText = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Copied!';
+                        
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalText;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Copy failed:', err);
+                        alert('Failed to copy to clipboard. Please try again.');
+                    });
+                } catch (error) {
+                    console.error('Clipboard error:', error);
+                    alert('Failed to copy activity. Please try again.');
+                }
+            }
+            
+            function initializeExampleData() {
+                // Uncomment to auto-fill example data for testing
+                /*
+                subjectSelect.value = 'science';
+                topicInput.value = 'Photosynthesis';
+                gradeLevelSelect.value = '6-8';
+                resourcesTextarea.value = 'Whiteboard, markers, plant diagrams, colored paper, scissors, glue';
+                learningObjectiveTextarea.value = 'Understand the process of photosynthesis and its importance for life on Earth';
+                */
+            }
+            
+            // Test backend connection on load
+            async function testBackendConnection() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/health`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        console.log('✅ Backend connection successful');
+                        const data = await response.json();
+                        console.log('Backend status:', data);
+                    } else {
+                        console.warn('⚠️ Backend connection issue');
+                    }
+                } catch (error) {
+                    console.error('❌ Backend connection failed:', error);
+                    showActivityError('Cannot connect to backend server. Make sure the Python backend is running.');
+                }
+            }
+            
+            // Test connection after a short delay
+            setTimeout(testBackendConnection, 1000);
+        });
+    </script>
+</body>
+</html>

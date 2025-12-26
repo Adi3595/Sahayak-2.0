@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sahayak - AI Teaching Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --primary-light: #8b5cf6;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --surface: #f8fafc;
+            --surface-dark: #0f172a;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: var(--text-primary);
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            --surface: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+        }
+        
+        /* App Container */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        /* Sidebar - Smaller Size */
+        .sidebar {
+            width: 280px; /* Reduced from 320px */
+            background: white;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 50;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        body.dark-mode .sidebar {
+            background: #1e293b;
+            border-right-color: #334155;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar-header {
+            padding: 18px 16px; /* Reduced padding */
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Reduced gap */
+            margin-bottom: 6px; /* Reduced margin */
+        }
+        
+        .logo {
+            width: 40px; /* Reduced from 48px */
+            height: 40px; /* Reduced from 48px */
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px; /* Reduced from 12px */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25); /* Reduced shadow */
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: rotate(5deg) scale(1.05);
+        }
+        
+        .logo i {
+            font-size: 18px; /* Reduced from 22px */
+            color: white;
+        }
+        
+        .brand {
+            flex: 1;
+        }
+        
+        .brand h1 {
+            font-size: 18px; /* Reduced from 20px */
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 2px; /* Reduced from 4px */
+        }
+        
+        .brand span {
+            font-size: 11px; /* Reduced from 13px */
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.2px; /* Reduced from 0.3px */
+        }
+        
+        .quick-actions {
+            padding: 16px; /* Reduced from 20px */
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px; /* Reduced from 12px */
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .action-btn {
+            padding: 12px 14px; /* Reduced from 14px 16px */
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px; /* Reduced from 10px */
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Reduced from 12px */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px; /* Reduced from 14px */
+            font-weight: 500;
+            color: var(--text-primary);
+            text-align: left;
+        }
+        
+        body.dark-mode .action-btn {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.03), rgba(16, 185, 129, 0.03));
+        }
+        
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+        }
+        
+        .action-btn.primary:hover {
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
+            transform: translateY(-3px);
+        }
+        
+        .action-btn i {
+            font-size: 14px; /* Reduced from 16px */
+            width: 18px; /* Reduced from 20px */
+        }
+        
+        .conversation-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px; /* Reduced from 20px */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .history-header {
+            padding-bottom: 12px; /* Reduced from 16px */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px; /* Reduced from 8px */
+        }
+        
+        .history-header h3 {
+            font-size: 12px; /* Reduced from 13px */
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px; /* Reduced from 0.5px */
+            color: var(--text-secondary);
+        }
+        
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px; /* Reduced from 8px */
+        }
+        
+        .conversation-item {
+            padding: 14px; /* Reduced from 16px */
+            border-radius: 8px; /* Reduced from 10px */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            position: relative;
+            background: white;
+        }
+        
+        body.dark-mode .conversation-item {
+            background: #334155;
+        }
+        
+        .conversation-item:hover {
+            border-color: var(--border);
+            background: rgba(124, 58, 237, 0.03);
+            transform: translateX(4px);
+        }
+        
+        body.dark-mode .conversation-item:hover {
+            background: rgba(124, 58, 237, 0.08);
+        }
+        
+        .conversation-item.active {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .conversation-title {
+            font-weight: 500;
+            margin-bottom: 4px; /* Reduced from 6px */
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Reduced from 10px */
+            font-size: 13px; /* Reduced from 14px */
+        }
+        
+        .conversation-title i {
+            color: var(--primary);
+            font-size: 11px; /* Reduced from 12px */
+        }
+        
+        .conversation-meta {
+            font-size: 11px; /* Reduced from 12px */
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .conversation-time {
+            opacity: 0.8;
+        }
+        
+        .delete-conv-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 3px; /* Reduced from 4px */
+            border-radius: 3px; /* Reduced from 4px */
+            transition: all 0.2s ease;
+            opacity: 0;
+        }
+        
+        .conversation-item:hover .delete-conv-btn {
+            opacity: 1;
+        }
+        
+        .delete-conv-btn:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .sidebar-footer {
+            padding: 16px; /* Reduced from 20px */
+            border-top: 1px solid var(--border);
+            background: rgba(248, 250, 252, 0.5);
+        }
+        
+        body.dark-mode .sidebar-footer {
+            background: rgba(30, 41, 59, 0.5);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Reduced from 12px */
+            margin-bottom: 12px; /* Reduced from 16px */
+        }
+        
+        .user-avatar {
+            width: 36px; /* Reduced from 40px */
+            height: 36px; /* Reduced from 40px */
+            border-radius: 8px; /* Reduced from 10px */
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(124, 58, 237, 0.2);
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-details h4 {
+            font-size: 13px; /* Reduced from 14px */
+            font-weight: 600;
+            margin-bottom: 1px; /* Reduced from 2px */
+        }
+        
+        .user-details span {
+            font-size: 11px; /* Reduced from 12px */
+            color: var(--text-secondary);
+        }
+        
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px; /* Reduced from 12px 16px */
+            border-radius: 8px; /* Reduced from 10px */
+            cursor: pointer;
+            transition: background 0.2s ease;
+            background: white;
+            border: 1px solid var(--border);
+        }
+        
+        body.dark-mode .theme-toggle {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(124, 58, 237, 0.05);
+            border-color: var(--primary);
+        }
+        
+        .theme-toggle-content {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Reduced from 10px */
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+        }
+        
+        body.dark-mode .chat-header {
+            background: #1e293b;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+        
+        .mobile-menu-btn:hover {
+            background: rgba(124, 58, 237, 0.1);
+        }
+        
+        .chat-title-section {
+            flex: 1;
+        }
+        
+        .chat-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .chat-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            position: relative;
+            color: var(--text-primary);
+        }
+        
+        body.dark-mode .header-btn {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .header-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+            color: var(--primary);
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), rgba(16, 185, 129, 0.05));
+        }
+        
+        .header-btn i {
+            font-size: 16px;
+        }
+        
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            background: var(--surface);
+        }
+        
+        .welcome-screen {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 24px;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .welcome-icon {
+            width: 96px;
+            height: 96px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+            box-shadow: 0 12px 32px rgba(124, 58, 237, 0.25);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .welcome-icon i {
+            font-size: 40px;
+            color: white;
+        }
+        
+        .welcome-screen h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .welcome-screen p {
+            max-width: 560px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+        
+        .welcome-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 560px;
+            width: 100%;
+        }
+        
+        .feature-card {
+            padding: 24px 20px;
+            border-radius: 16px;
+            background: white;
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-mode .feature-card {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(124, 58, 237, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .feature-card i {
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .feature-card span {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Message Styling */
+        .message {
+            display: flex;
+            gap: 16px;
+            max-width: 90%;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .message.bot {
+            align-self: flex-start;
+        }
+        
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user .avatar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            order: 2;
+        }
+        
+        .bot .avatar {
+            background: linear-gradient(135deg, #64748b, #94a3b8);
+        }
+        
+        .avatar i {
+            font-size: 18px;
+            color: white;
+        }
+        
+        .message-content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+        }
+        
+        .user .message-content {
+            align-items: flex-end;
+        }
+        
+        .message-bubble {
+            padding: 20px;
+            border-radius: 18px;
+            position: relative;
+            max-width: 100%;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .user .message-bubble {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .bot .message-bubble {
+            background: white;
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+        
+        body.dark-mode .bot .message-bubble {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .message-text {
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-size: 15px;
+        }
+        
+        .message-text h1, .message-text h2, .message-text h3, .message-text h4 {
+            margin-top: 20px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        .message-text h1 {
+            font-size: 24px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+        
+        .message-text h2 {
+            font-size: 20px;
+        }
+        
+        .message-text h3 {
+            font-size: 18px;
+        }
+        
+        .message-text h4 {
+            font-size: 16px;
+        }
+        
+        .message-text ul, .message-text ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .message-text li {
+            margin-bottom: 8px;
+        }
+        
+        .message-text table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .message-text th, .message-text td {
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .message-text th {
+            background: rgba(124, 58, 237, 0.1);
+            font-weight: 600;
+        }
+        
+        .message-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .message:hover .message-actions {
+            opacity: 1;
+        }
+        
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+        
+        body.dark-mode .action-icon {
+            background: #475569;
+            border-color: #64748b;
+        }
+        
+        .action-icon:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .action-icon i {
+            font-size: 14px;
+        }
+        
+        /* Input Area - Simplified */
+        .input-container {
+            padding: 24px;
+            border-top: 1px solid var(--border);
+            background: white;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
+        }
+        
+        body.dark-mode .input-container {
+            background: #1e293b;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            width: 100%;
+        }
+        
+        /* Lesson Type Selector - Smaller and only 2 options */
+        .lesson-type-selector {
+            display: flex;
+            gap: 4px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px; /* Smaller radius */
+            padding: 3px; /* Smaller padding */
+            margin-bottom: 15px; /* Reduced margin */
+            max-width: 400px; /* Reduced from 500px */
+            overflow: hidden;
+        }
+        
+        body.dark-mode .lesson-type-selector {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .type-btn {
+            flex: 1;
+            padding: 8px 12px; /* Smaller padding */
+            border: none;
+            background: none;
+            border-radius: 7px; /* Smaller radius */
+            cursor: pointer;
+            font-size: 12px; /* Smaller font */
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px; /* Smaller gap */
+            white-space: nowrap;
+        }
+        
+        .type-btn:hover {
+            color: var(--primary);
+            background: rgba(124, 58, 237, 0.05);
+        }
+        
+        .type-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 3px 8px rgba(124, 58, 237, 0.2); /* Smaller shadow */
+        }
+        
+        .type-btn i {
+            font-size: 13px; /* Smaller icon */
+        }
+        
+        /* Quick Prompts - REMOVED */
+        .quick-prompts {
+            display: none; /* Hide quick prompts */
+        }
+        
+        .chat-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+        
+        body.dark-mode .chat-input-wrapper {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .chat-input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.15);
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 16px 52px 16px 20px;
+            border: none;
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.5;
+            max-height: 150px;
+            min-height: 56px;
+            background: transparent;
+            color: var(--text-primary);
+            outline: none;
+        }
+        
+        .chat-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+        
+        .input-actions {
+            position: absolute;
+            right: 72px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        
+        .input-action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+        
+        body.dark-mode .input-action-btn {
+            background: #475569;
+            border-color: #64748b;
+            color: #f1f5f9;
+        }
+        
+        .input-action-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .input-action-btn i {
+            font-size: 16px;
+        }
+        
+        .send-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        
+        .send-button:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        }
+        
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 6px;
+            padding: 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            max-width: 140px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        body.dark-mode .typing-indicator {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                height: 100vh;
+                z-index: 1000;
+                width: 280px; /* Updated to new width */
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            }
+            
+            .sidebar.open {
+                left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                backdrop-filter: blur(2px);
+            }
+            
+            .overlay.active {
+                display: block;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .messages-container {
+                padding: 20px 16px;
+            }
+            
+            .message {
+                max-width: 95%;
+                gap: 12px;
+            }
+            
+            .avatar {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .message-bubble {
+                padding: 16px;
+            }
+            
+            .welcome-screen {
+                padding: 32px 16px;
+            }
+            
+            .welcome-icon {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 24px;
+            }
+            
+            .welcome-screen h2 {
+                font-size: 24px;
+            }
+            
+            .welcome-screen p {
+                font-size: 15px;
+            }
+            
+            .welcome-features {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .feature-card {
+                padding: 20px 16px;
+            }
+            
+            .input-container {
+                padding: 20px 16px;
+            }
+            
+            .chat-input-wrapper {
+                gap: 12px;
+            }
+            
+            .input-actions {
+                right: 68px;
+            }
+            
+            .lesson-type-selector {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            
+            .lesson-type-selector::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .type-btn {
+                min-width: 100px; /* Smaller min-width */
+                padding: 8px 10px; /* Smaller padding */
+                font-size: 11px; /* Smaller font */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .chat-header {
+                padding: 16px;
+            }
+            
+            .chat-title {
+                font-size: 16px;
+            }
+            
+            .chat-subtitle {
+                font-size: 13px;
+            }
+            
+            .header-btn {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .message {
+                max-width: 100%;
+            }
+            
+            .lesson-type-selector {
+                max-width: 100%;
+            }
+            
+            .type-btn {
+                min-width: 90px; /* Smaller min-width */
+                font-size: 10px; /* Smaller font */
+                gap: 4px; /* Smaller gap */
+            }
+            
+            .type-btn i {
+                font-size: 12px; /* Smaller icon */
+            }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+        
+        body.dark-mode ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 32px;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+            border: 1px solid var(--border);
+            animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--primary);
+        }
+        
+        .modal-body {
+            margin-bottom: 32px;
+        }
+        
+        .modal-body p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .modal-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+        
+        .modal-btn-secondary {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        
+        body.dark-mode .modal-btn-secondary {
+            background: #475569;
+            border-color: #64748b;
+        }
+        
+        .modal-btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .modal-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+        
+        .modal-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+        }
+        
+        /* Export Options */
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .export-option {
+            padding: 24px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        body.dark-mode .export-option {
+            background: #334155;
+            border-color: #475569;
+        }
+        
+        .export-option:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.1);
+        }
+        
+        .export-option i {
+            font-size: 24px;
+            margin-bottom: 12px;
+            display: block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .export-option span {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        /* Status Notification */
+        .status-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 12px 32px rgba(124, 58, 237, 0.3);
+            z-index: 1000;
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 320px;
+            backdrop-filter: blur(10px);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .status-notification i {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Overlay for mobile -->
+        <div class="overlay" id="overlay"></div>
+        
+        <!-- Sidebar - Now Smaller -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="brand">
+                    <h1>Sahayak AI</h1>
+                    <span>Teaching Assistant</span>
+                </div>
+            </div>
+            
+            <div class="quick-actions">
+                <button class="action-btn primary" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Lesson Plan</span>
+                </button>
+                <button class="action-btn" id="templatesBtn">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Lesson Templates</span>
+                </button>
+                <button class="action-btn" id="myPlansBtn">
+                    <i class="fas fa-book"></i>
+                    <span>Saved Plans</span>
+                </button>
+            </div>
+            
+            <div class="conversation-history">
+                <div class="history-header">
+                    <h3>Recent Plans</h3>
+                    <button class="header-btn" id="refreshHistoryBtn" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div id="conversationList">
+                    <!-- Conversations will be loaded here -->
+                </div>
+            </div>
+
+            
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">T</div>
+                    <div class="user-details">
+                        <h4>Teacher</h4>
+                        <span>Classroom Educator</span>
+                    </div>
+                </div>
+                
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="chat-title" id="chatTitle">Welcome to Sahayak</div>
+                        <div class="chat-subtitle" id="chatSubtitle">AI Teaching Assistant</div>
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <a href="Differentiated_materials.html" class="header-btn tooltip" id="homeLink" title="Home">
+                        <i class="fas fa-home"></i>
+                    </a>
+
+                    <button class="header-btn tooltip" id="savePlanBtn" title="Save Plan">
+                        <i class="fas fa-save"></i>
+                    </button>
+                    <button class="header-btn tooltip" id="exportPlanBtn" title="Export">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="header-btn tooltip" id="clearChatBtn" title="Clear Chat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-container">
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Welcome Screen -->
+                    <div class="welcome-screen" id="welcomeScreen">
+                        <div class="welcome-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h2>Welcome to Sahayak</h2>
+                        <p>Create engaging lesson plans, activities, and assessments with AI assistance. Start by typing a message or choose a quick prompt below.</p>
+                        
+                        <div class="welcome-features">
+                            <div class="feature-card">
+                                <i class="fas fa-book"></i>
+                                <span>Lesson Plans</span>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-puzzle-piece"></i>
+                                <span>Activities</span>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span>Assessments</span>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-language"></i>
+                                <span>Multi-language</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        
+                        <!-- Input Area -->
+                        <div class="chat-input-wrapper">
+                            <textarea 
+                                class="chat-input" 
+                                id="chatInput" 
+                                placeholder="Describe your lesson plan needs..." 
+                                rows="1"
+                            ></textarea>
+                            
+                            <div class="input-actions">
+                                <button class="input-action-btn tooltip" id="attachFileBtn" title="Attach File">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                            </div>
+                            
+                            <button class="send-button" id="sendButton">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div class="modal" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Export Lesson Plan</div>
+                <button class="modal-close" id="exportModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Choose export format:</p>
+                <div class="export-options">
+                    <div class="export-option" data-format="pdf">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>PDF</span>
+                    </div>
+                    <div class="export-option" data-format="docx">
+                        <i class="fas fa-file-word"></i>
+                        <span>Word</span>
+                    </div>
+                    <div class="export-option" data-format="txt">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Text</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Delete Lesson Plan</div>
+                <button class="modal-close" id="deleteModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this lesson plan? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="deleteModalCancel">Cancel</button>
+                <button class="modal-btn modal-btn-primary" id="deleteModalConfirm">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Notification -->
+    <div class="status-notification" id="statusNotification" style="display: none;">
+        <i class="fas fa-check-circle"></i>
+        <span id="statusMessage">Operation completed successfully</span>
+    </div>
+
+    <script>
+        class SahayakChat {
+            constructor() {
+                this.currentConversationId = null;
+                this.currentType = 'lesson';
+                this.isDarkMode = localStorage.getItem('sahayak-dark-mode') === 'true';
+                this.conversations = [];
+                this.conversationToDelete = null;
+                this.isGenerating = false;
+                
+                this.initializeElements();
+                this.attachEventListeners();
+                this.loadConversations();
+                this.applyTheme();
+            }
+            
+            initializeElements() {
+                // Sidebar elements
+                this.sidebar = document.getElementById('sidebar');
+                this.mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                this.overlay = document.getElementById('overlay');
+                this.newChatBtn = document.getElementById('newChatBtn');
+                this.templatesBtn = document.getElementById('templatesBtn');
+                this.myPlansBtn = document.getElementById('myPlansBtn');
+                this.refreshHistoryBtn = document.getElementById('refreshHistoryBtn');
+                this.conversationList = document.getElementById('conversationList');
+                this.themeToggle = document.getElementById('themeToggle');
+                
+                // Chat elements
+                this.chatTitle = document.getElementById('chatTitle');
+                this.chatSubtitle = document.getElementById('chatSubtitle');
+                this.welcomeScreen = document.getElementById('welcomeScreen');
+                this.messagesContainer = document.getElementById('messagesContainer');
+                this.chatInput = document.getElementById('chatInput');
+                this.sendButton = document.getElementById('sendButton');
+                
+                // Lesson type selector - now only 2 buttons
+                this.lessonTypeSelector = document.getElementById('lessonTypeSelector');
+                this.quickPrompts = document.getElementById('quickPrompts');
+                
+                // Action buttons
+                this.savePlanBtn = document.getElementById('savePlanBtn');
+                this.exportPlanBtn = document.getElementById('exportPlanBtn');
+                this.clearChatBtn = document.getElementById('clearChatBtn');
+                this.attachFileBtn = document.getElementById('attachFileBtn');
+                
+                // Modals
+                this.exportModal = document.getElementById('exportModal');
+                this.exportModalClose = document.getElementById('exportModalClose');
+                this.deleteModal = document.getElementById('deleteModal');
+                this.deleteModalClose = document.getElementById('deleteModalClose');
+                this.deleteModalCancel = document.getElementById('deleteModalCancel');
+                this.deleteModalConfirm = document.getElementById('deleteModalConfirm');
+                
+                // Status
+                this.statusNotification = document.getElementById('statusNotification');
+                this.statusMessage = document.getElementById('statusMessage');
+            }
+            
+            attachEventListeners() {
+                // Mobile menu
+                this.mobileMenuBtn.addEventListener('click', () => this.toggleSidebar());
+                this.overlay.addEventListener('click', () => this.toggleSidebar());
+                
+                // New chat
+                this.newChatBtn.addEventListener('click', () => this.startNewChat());
+                
+                // Quick actions
+                this.templatesBtn.addEventListener('click', () => this.showTemplates());
+                this.myPlansBtn.addEventListener('click', () => this.showMyPlans());
+                this.refreshHistoryBtn.addEventListener('click', () => this.loadConversations());
+                
+                // Theme toggle
+                this.themeToggle.addEventListener('click', () => this.toggleTheme());
+                
+                // Chat input
+                this.chatInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+                
+                this.chatInput.addEventListener('input', () => this.autoResizeTextarea());
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                
+                // Lesson type selector - only 2 buttons now
+                this.lessonTypeSelector.querySelectorAll('.type-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.lessonTypeSelector.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentType = btn.dataset.type;
+                        this.updateInputPlaceholder();
+                    });
+                });
+                
+                // Quick prompts - removed event listeners since section is hidden
+                
+                // Action buttons
+                this.savePlanBtn.addEventListener('click', () => this.saveLessonPlan());
+                this.exportPlanBtn.addEventListener('click', () => this.showExportModal());
+                this.clearChatBtn.addEventListener('click', () => this.showClearChatModal());
+                this.attachFileBtn.addEventListener('click', () => this.attachFile());
+                
+                // Modal events
+                this.exportModalClose.addEventListener('click', () => this.hideModal(this.exportModal));
+                this.exportModal.querySelectorAll('.export-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        const format = option.dataset.format;
+                        this.exportLessonPlan(format);
+                    });
+                });
+                
+                this.deleteModalClose.addEventListener('click', () => this.hideModal(this.deleteModal));
+                this.deleteModalCancel.addEventListener('click', () => this.hideModal(this.deleteModal));
+                this.deleteModalConfirm.addEventListener('click', () => this.confirmDelete());
+            }
+            
+            toggleSidebar() {
+                this.sidebar.classList.toggle('open');
+                this.overlay.classList.toggle('active');
+            }
+            
+            autoResizeTextarea() {
+                this.chatInput.style.height = 'auto';
+                this.chatInput.style.height = Math.min(this.chatInput.scrollHeight, 120) + 'px';
+            }
+            
+            updateInputPlaceholder() {
+                const placeholders = {
+                    'lesson': 'Describe your lesson plan needs...',
+                    'activity': 'Describe the learning activity...'
+                    // Removed assessment and resource placeholders
+                };
+                this.chatInput.placeholder = placeholders[this.currentType] || 'Message Sahayak...';
+            }
+            
+            async startNewChat() {
+                this.currentConversationId = null;
+                this.messagesContainer.innerHTML = '';
+                this.showWelcomeScreen();
+                this.chatTitle.textContent = 'Welcome to Sahayak';
+                this.chatSubtitle.textContent = 'AI Teaching Assistant';
+                this.chatInput.value = '';
+                this.chatInput.focus();
+                this.toggleSidebar(); // Close sidebar on mobile
+                this.loadConversations();
+            }
+            
+            showWelcomeScreen() {
+                this.welcomeScreen.style.display = 'flex';
+            }
+            
+            hideWelcomeScreen() {
+                this.welcomeScreen.style.display = 'none';
+            }
+            
+            async sendMessage() {
+                const message = this.chatInput.value.trim();
+                if (!message || this.isGenerating) return;
+                
+                this.chatInput.value = '';
+                this.autoResizeTextarea();
+                this.hideWelcomeScreen();
+                
+                // Add user message
+                this.addMessageToChat('user', message);
+                
+                // Show typing indicator
+                this.showTypingIndicator();
+                
+                this.isGenerating = true;
+                this.sendButton.disabled = true;
+                
+                try {
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.removeTypingIndicator();
+                        this.handleBotResponse(message);
+                        this.isGenerating = false;
+                        this.sendButton.disabled = false;
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    this.removeTypingIndicator();
+                    this.addMessageToChat('bot', 'Sorry, I encountered an error. Please try again.');
+                    this.isGenerating = false;
+                    this.sendButton.disabled = false;
+                }
+            }
+            
+            handleBotResponse(userMessage) {
+                // Generate AI response based on current type
+                let response = '';
+                
+                switch(this.currentType) {
+                    case 'lesson':
+                        response = this.generateLessonPlanResponse(userMessage);
+                        break;
+                    case 'activity':
+                        response = this.generateActivityResponse(userMessage);
+                        break;
+                    // Removed assessment and resource cases
+                    default:
+                        response = this.generateDefaultResponse(userMessage);
+                }
+                
+                this.addMessageToChat('bot', response);
+                
+                // Update conversation list
+                this.updateConversationList(userMessage);
+            }
+            
+            generateLessonPlanResponse(message) {
+                return `# Lesson Plan: ${message}
+                
+## Learning Objectives
+- Students will understand the key concepts of the topic
+- Students will be able to apply their knowledge in practical scenarios
+- Students will develop critical thinking skills
+
+## Materials Needed
+- Whiteboard and markers
+- Student worksheets
+- Reference materials
+- Technology devices (if applicable)
+
+## Procedure
+1. **Introduction (10 mins)**
+   - Engage students with a thought-provoking question
+   - Introduce the learning objectives
+
+2. **Direct Instruction (20 mins)**
+   - Present key concepts with examples
+   - Use visual aids and demonstrations
+
+3. **Guided Practice (15 mins)**
+   - Work through examples together
+   - Provide immediate feedback
+
+4. **Independent Practice (20 mins)**
+   - Students work on individual tasks
+   - Circulate to provide support
+
+5. **Closure (10 mins)**
+   - Review key concepts
+   - Assign homework if needed
+
+## Differentiation
+- **Support:** Provide sentence starters and visual aids
+- **Challenge:** Include extension activities
+- **ELL Support:** Use simplified language and gestures
+
+## Assessment
+- Formative: Observation during guided practice
+- Summative: End-of-lesson quiz
+- Informal: Exit ticket`;
+            }
+            
+            generateActivityResponse(message) {
+                return `# Learning Activity: ${message}
+                
+## Activity Overview
+A hands-on, engaging activity designed to reinforce key concepts through interactive learning.
+
+## Materials
+- Activity sheets
+- Manipulatives (if applicable)
+- Technology tools
+- Group materials
+
+## Instructions
+1. Divide students into groups of 3-4
+2. Distribute activity materials
+3. Explain the task clearly
+4. Set a time limit (recommended: 25-30 mins)
+5. Circulate to monitor progress
+6. Have groups share their results
+
+## Learning Outcomes
+- Collaborative skills development
+- Application of theoretical knowledge
+- Problem-solving practice
+- Communication skills enhancement
+
+## Teacher's Role
+- Facilitate rather than direct
+- Ask probing questions
+- Provide support where needed
+- Manage time effectively
+
+## Extension Ideas
+1. Have students create their own variations
+2. Connect to real-world applications
+3. Integrate with other subject areas`;
+            }
+            
+            // Removed generateAssessmentResponse and generateResourceResponse functions
+            
+            generateDefaultResponse(message) {
+                return `I understand you're asking about: "${message}"
+
+As an AI teaching assistant, I can help you with:
+1. Creating detailed lesson plans
+2. Designing engaging classroom activities
+3. Developing assessments and rubrics
+4. Generating teaching resources
+5. Differentiating instruction for diverse learners
+6. Integrating technology in teaching
+7. Classroom management strategies
+8. Professional development resources
+
+What specific aspect would you like me to focus on?`;
+            }
+            
+            addMessageToChat(role, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${role}`;
+                
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'avatar';
+                avatarDiv.innerHTML = role === 'user' ? 
+                    '<i class="fas fa-user"></i>' : 
+                    '<i class="fas fa-robot"></i>';
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.className = 'message-bubble';
+                
+                const textDiv = document.createElement('div');
+                textDiv.className = 'message-text';
+                textDiv.innerHTML = content.replace(/\n/g, '<br>');
+                
+                bubbleDiv.appendChild(textDiv);
+                
+                if (role === 'bot') {
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'message-actions';
+                    actionsDiv.innerHTML = `
+                        <button class="action-icon copy-btn" title="Copy">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="action-icon save-btn" title="Save">
+                            <i class="fas fa-save"></i>
+                        </button>
+                    `;
+                    bubbleDiv.appendChild(actionsDiv);
+                    
+                    // Add event listeners to action buttons
+                    actionsDiv.querySelector('.copy-btn').addEventListener('click', () => {
+                        this.copyToClipboard(content);
+                        this.showStatus('Copied to clipboard!');
+                    });
+                    
+                    actionsDiv.querySelector('.save-btn').addEventListener('click', () => {
+                        this.saveContent(content);
+                        this.showStatus('Content saved!');
+                    });
+                }
+                
+                contentDiv.appendChild(bubbleDiv);
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(contentDiv);
+                
+                this.messagesContainer.appendChild(messageDiv);
+                this.scrollToBottom();
+                
+                // Update chat title for first bot response
+                if (role === 'bot' && this.chatTitle.textContent === 'Welcome to Sahayak') {
+                    const firstLine = content.split('\n')[0].replace('# ', '').replace('## ', '');
+                    this.chatTitle.textContent = firstLine.substring(0, 40) + (firstLine.length > 40 ? '...' : '');
+                    this.chatSubtitle.textContent = 'AI Generated Plan';
+                }
+            }
+            
+            copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    this.showStatus('Copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            }
+            
+            saveContent(content) {
+                // Save content to localStorage for demo
+                const savedItems = JSON.parse(localStorage.getItem('sahayak-saved-items') || '[]');
+                savedItems.push({
+                    id: Date.now().toString(),
+                    content: content,
+                    savedAt: new Date().toISOString(),
+                    type: this.currentType
+                });
+                localStorage.setItem('sahayak-saved-items', JSON.stringify(savedItems));
+            }
+            
+            showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message bot';
+                typingDiv.id = 'typingIndicator';
+                
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'avatar';
+                avatarDiv.innerHTML = '<i class="fas fa-robot"></i>';
+                
+                const typingContent = document.createElement('div');
+                typingContent.className = 'typing-indicator';
+                typingContent.innerHTML = `
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                `;
+                
+                typingDiv.appendChild(avatarDiv);
+                typingDiv.appendChild(typingContent);
+                this.messagesContainer.appendChild(typingDiv);
+                this.scrollToBottom();
+            }
+            
+            removeTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            scrollToBottom() {
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            }
+            
+            updateConversationList(message) {
+                if (!this.currentConversationId) {
+                    this.currentConversationId = Date.now().toString();
+                    
+                    const conversation = {
+                        id: this.currentConversationId,
+                        title: message.substring(0, 30) + (message.length > 30 ? '...' : ''),
+                        timestamp: new Date().toISOString(),
+                        type: this.currentType
+                    };
+                    
+                    this.conversations.unshift(conversation);
+                    this.saveConversations();
+                    this.renderConversationList();
+                }
+            }
+            
+            saveConversations() {
+                localStorage.setItem('sahayak-conversations', JSON.stringify(this.conversations));
+            }
+            
+            loadConversations() {
+                const saved = localStorage.getItem('sahayak-conversations');
+                this.conversations = saved ? JSON.parse(saved) : [];
+                this.renderConversationList();
+            }
+            
+            renderConversationList() {
+                this.conversationList.innerHTML = '';
+                
+                this.conversations.forEach(conv => {
+                    const item = document.createElement('div');
+                    item.className = 'conversation-item';
+                    
+                    if (conv.id === this.currentConversationId) {
+                        item.classList.add('active');
+                    }
+                    
+                    item.innerHTML = `
+                        <div class="conversation-title">
+                            <i class="fas fa-${this.getIconForType(conv.type)}"></i>
+                            ${conv.title}
+                        </div>
+                        <div class="conversation-meta">
+                            <span>${new Date(conv.timestamp).toLocaleDateString()}</span>
+                            <button class="delete-conv-btn" data-id="${conv.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    item.addEventListener('click', (e) => {
+                        if (!e.target.closest('.delete-conv-btn')) {
+                            this.loadConversation(conv.id);
+                        }
+                    });
+                    
+                    item.querySelector('.delete-conv-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.showDeleteModal(conv.id);
+                    });
+                    
+                    this.conversationList.appendChild(item);
+                });
+            }
+            
+            getIconForType(type) {
+                const icons = {
+                    'lesson': 'book',
+                    'activity': 'puzzle-piece'
+                    // Removed assessment and resource icons
+                };
+                return icons[type] || 'comment';
+            }
+            
+            loadConversation(conversationId) {
+                // In a real app, this would load from a database
+                // For demo, we'll just show a sample
+                this.currentConversationId = conversationId;
+                this.messagesContainer.innerHTML = '';
+                this.hideWelcomeScreen();
+                
+                const conv = this.conversations.find(c => c.id === conversationId);
+                if (conv) {
+                    this.chatTitle.textContent = conv.title;
+                    this.chatSubtitle.textContent = 'AI Generated Plan';
+                    this.currentType = conv.type;
+                    
+                    // Update active type
+                    this.lessonTypeSelector.querySelectorAll('.type-btn').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.type === conv.type);
+                    });
+                    
+                    // Show sample messages
+                    this.addMessageToChat('user', conv.title);
+                    this.addMessageToChat('bot', this.generateSampleResponse(conv.type));
+                }
+                
+                this.renderConversationList();
+                this.toggleSidebar(); // Close sidebar on mobile
+            }
+            
+            generateSampleResponse(type) {
+                const samples = {
+                    'lesson': 'Here is your lesson plan...',
+                    'activity': 'Here is your activity...'
+                    // Removed assessment and resource samples
+                };
+                return samples[type] || 'Here is your content...';
+            }
+            
+            toggleTheme() {
+                this.isDarkMode = !this.isDarkMode;
+                this.applyTheme();
+                localStorage.setItem('sahayak-dark-mode', this.isDarkMode);
+            }
+            
+            applyTheme() {
+                if (this.isDarkMode) {
+                    document.body.classList.add('dark-mode');
+                    this.themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    this.themeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+                }
+            }
+            
+            showStatus(message) {
+                this.statusMessage.textContent = message;
+                this.statusNotification.style.display = 'flex';
+                
+                setTimeout(() => {
+                    this.statusNotification.style.display = 'none';
+                }, 3000);
+            }
+            
+            showModal(modal) {
+                modal.style.display = 'flex';
+            }
+            
+            hideModal(modal) {
+                modal.style.display = 'none';
+            }
+            
+            showExportModal() {
+                this.showModal(this.exportModal);
+            }
+            
+            exportLessonPlan(format) {
+                // Get the latest bot message content
+                const botMessages = this.messagesContainer.querySelectorAll('.message.bot .message-text');
+                if (botMessages.length === 0) {
+                    this.showStatus('No content to export');
+                    return;
+                }
+                
+                const content = botMessages[botMessages.length - 1].innerText;
+                let mimeType, fileExtension;
+                
+                switch(format) {
+                    case 'pdf':
+                        mimeType = 'application/pdf';
+                        fileExtension = 'pdf';
+                        break;
+                    case 'docx':
+                        mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+                        fileExtension = 'docx';
+                        break;
+                    case 'txt':
+                    default:
+                        mimeType = 'text/plain';
+                        fileExtension = 'txt';
+                }
+                
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sahayak_${this.currentType}_${new Date().toISOString().slice(0, 10)}.${fileExtension}`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                this.hideModal(this.exportModal);
+                this.showStatus(`Exported as ${format.toUpperCase()}!`);
+            }
+            
+            saveLessonPlan() {
+                const botMessages = this.messagesContainer.querySelectorAll('.message.bot .message-text');
+                if (botMessages.length === 0) {
+                    this.showStatus('No lesson plan to save');
+                    return;
+                }
+                
+                const content = botMessages[botMessages.length - 1].innerText;
+                const savedPlans = JSON.parse(localStorage.getItem('sahayak-saved-plans') || '[]');
+                
+                savedPlans.push({
+                    id: Date.now().toString(),
+                    title: this.chatTitle.textContent,
+                    content: content,
+                    savedAt: new Date().toISOString(),
+                    type: this.currentType,
+                    conversationId: this.currentConversationId
+                });
+                
+                localStorage.setItem('sahayak-saved-plans', JSON.stringify(savedPlans));
+                this.showStatus('Lesson plan saved!');
+            }
+            
+            showClearChatModal() {
+                if (this.messagesContainer.children.length > 1) {
+                    this.showModal(this.deleteModal);
+                } else {
+                    this.showStatus('Chat is already empty');
+                }
+            }
+            
+            clearCurrentChat() {
+                if (this.messagesContainer.children.length > 1) {
+                    this.startNewChat();
+                }
+            }
+            
+            attachFile() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.pdf,.doc,.docx,.txt,.jpg,.png';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        this.showStatus(`Attached: ${file.name}`);
+                    }
+                };
+                input.click();
+            }
+            
+            showTemplates() {
+                this.showStatus('Lesson template library coming soon!');
+            }
+            
+            showMyPlans() {
+                this.showStatus('Saved plans feature coming soon!');
+            }
+            
+            showDeleteModal(conversationId) {
+                this.conversationToDelete = conversationId;
+                this.showModal(this.deleteModal);
+            }
+            
+            confirmDelete() {
+                if (this.conversationToDelete) {
+                    this.conversations = this.conversations.filter(c => c.id !== this.conversationToDelete);
+                    this.saveConversations();
+                    
+                    if (this.currentConversationId === this.conversationToDelete) {
+                        this.startNewChat();
+                    }
+                    
+                    this.renderConversationList();
+                    this.hideModal(this.deleteModal);
+                    this.showStatus('Conversation deleted');
+                }
+            }
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new SahayakChat();
+            window.sahayakApp = app;
+        });
+    </script>
+</body>
+</html>
