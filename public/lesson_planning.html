@@ -1591,157 +1591,159 @@
                 this.conversations = [];
                 this.conversationToDelete = null;
                 this.isGenerating = false;
+                this.isAuthenticated = false;
+                this.accessToken = null;
+                this.user = null;
+                
+                // Backend API URL - Change this to your deployment URL
+                this.API_BASE_URL = window.location.hostname.includes('localhost') ||
+                     window.location.hostname.includes('127.0.0.1')
+  ? 'http://127.0.0.5:8000'
+  : 'https://sahayak-2-0.onrender.com';
                 
                 this.initializeElements();
                 this.attachEventListeners();
-                this.loadConversations();
+                this.checkAuthentication();
                 this.applyTheme();
             }
             
             initializeElements() {
-                // Sidebar elements
-                this.sidebar = document.getElementById('sidebar');
-                this.mobileMenuBtn = document.getElementById('mobileMenuBtn');
-                this.overlay = document.getElementById('overlay');
-                this.newChatBtn = document.getElementById('newChatBtn');
-                this.templatesBtn = document.getElementById('templatesBtn');
-                this.myPlansBtn = document.getElementById('myPlansBtn');
-                this.refreshHistoryBtn = document.getElementById('refreshHistoryBtn');
-                this.conversationList = document.getElementById('conversationList');
-                this.themeToggle = document.getElementById('themeToggle');
+                // ... (keep all your existing element initialization) ...
                 
-                // Chat elements
-                this.chatTitle = document.getElementById('chatTitle');
-                this.chatSubtitle = document.getElementById('chatSubtitle');
-                this.welcomeScreen = document.getElementById('welcomeScreen');
-                this.messagesContainer = document.getElementById('messagesContainer');
-                this.chatInput = document.getElementById('chatInput');
-                this.sendButton = document.getElementById('sendButton');
-                
-                // Lesson type selector - now only 2 buttons
-                this.lessonTypeSelector = document.getElementById('lessonTypeSelector');
-                this.quickPrompts = document.getElementById('quickPrompts');
-                
-                // Action buttons
-                this.savePlanBtn = document.getElementById('savePlanBtn');
-                this.exportPlanBtn = document.getElementById('exportPlanBtn');
-                this.clearChatBtn = document.getElementById('clearChatBtn');
-                this.attachFileBtn = document.getElementById('attachFileBtn');
-                
-                // Modals
-                this.exportModal = document.getElementById('exportModal');
-                this.exportModalClose = document.getElementById('exportModalClose');
-                this.deleteModal = document.getElementById('deleteModal');
-                this.deleteModalClose = document.getElementById('deleteModalClose');
-                this.deleteModalCancel = document.getElementById('deleteModalCancel');
-                this.deleteModalConfirm = document.getElementById('deleteModalConfirm');
-                
-                // Status
-                this.statusNotification = document.getElementById('statusNotification');
-                this.statusMessage = document.getElementById('statusMessage');
+                // Add auth elements
+                this.authModal = document.getElementById('authModal');
+                this.loginTab = document.getElementById('loginTab');
+                this.registerTab = document.getElementById('registerTab');
+                this.loginForm = document.getElementById('loginForm');
+                this.registerForm = document.getElementById('registerForm');
+                this.logoutBtn = document.getElementById('logoutBtn');
             }
             
-            attachEventListeners() {
-                // Mobile menu
-                this.mobileMenuBtn.addEventListener('click', () => this.toggleSidebar());
-                this.overlay.addEventListener('click', () => this.toggleSidebar());
+            async checkAuthentication() {
+                this.accessToken = localStorage.getItem('sahayak-access-token');
+                this.user = JSON.parse(localStorage.getItem('sahayak-user') || 'null');
                 
-                // New chat
-                this.newChatBtn.addEventListener('click', () => this.startNewChat());
-                
-                // Quick actions
-                this.templatesBtn.addEventListener('click', () => this.showTemplates());
-                this.myPlansBtn.addEventListener('click', () => this.showMyPlans());
-                this.refreshHistoryBtn.addEventListener('click', () => this.loadConversations());
-                
-                // Theme toggle
-                this.themeToggle.addEventListener('click', () => this.toggleTheme());
-                
-                // Chat input
-                this.chatInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        this.sendMessage();
+                if (this.accessToken && this.user) {
+                    this.isAuthenticated = true;
+                    this.updateUserDisplay();
+                    this.loadConversations();
+                } else {
+                    this.showAuthModal();
+                }
+            }
+            
+            async showAuthModal() {
+                this.showModal(this.authModal);
+            }
+            
+            async login(username, password) {
+                try {
+                    const formData = new FormData();
+                    formData.append('username', username);
+                    formData.append('password', password);
+                    
+                    const response = await fetch(`${this.API_BASE_URL}/api/auth/login`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Login failed');
                     }
-                });
-                
-                this.chatInput.addEventListener('input', () => this.autoResizeTextarea());
-                this.sendButton.addEventListener('click', () => this.sendMessage());
-                
-                // Lesson type selector - only 2 buttons now
-                this.lessonTypeSelector.querySelectorAll('.type-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        this.lessonTypeSelector.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        this.currentType = btn.dataset.type;
-                        this.updateInputPlaceholder();
+                    
+                    const data = await response.json();
+                    
+                    // Store auth data
+                    this.accessToken = data.access_token;
+                    this.user = {
+                        id: data.user_id,
+                        username: data.username,
+                        full_name: data.full_name
+                    };
+                    
+                    localStorage.setItem('sahayak-access-token', this.accessToken);
+                    localStorage.setItem('sahayak-user', JSON.stringify(this.user));
+                    
+                    this.isAuthenticated = true;
+                    this.updateUserDisplay();
+                    this.hideModal(this.authModal);
+                    this.showStatus('Login successful!');
+                    
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showStatus('Login failed. Please check credentials.');
+                }
+            }
+            
+            async register(username, email, fullName, password) {
+                try {
+                    const response = await fetch(`${this.API_BASE_URL}/api/auth/register`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            email: email,
+                            full_name: fullName,
+                            password: password,
+                            account_type: 'teacher'
+                        })
                     });
-                });
-                
-                // Quick prompts - removed event listeners since section is hidden
-                
-                // Action buttons
-                this.savePlanBtn.addEventListener('click', () => this.saveLessonPlan());
-                this.exportPlanBtn.addEventListener('click', () => this.showExportModal());
-                this.clearChatBtn.addEventListener('click', () => this.showClearChatModal());
-                this.attachFileBtn.addEventListener('click', () => this.attachFile());
-                
-                // Modal events
-                this.exportModalClose.addEventListener('click', () => this.hideModal(this.exportModal));
-                this.exportModal.querySelectorAll('.export-option').forEach(option => {
-                    option.addEventListener('click', () => {
-                        const format = option.dataset.format;
-                        this.exportLessonPlan(format);
-                    });
-                });
-                
-                this.deleteModalClose.addEventListener('click', () => this.hideModal(this.deleteModal));
-                this.deleteModalCancel.addEventListener('click', () => this.hideModal(this.deleteModal));
-                this.deleteModalConfirm.addEventListener('click', () => this.confirmDelete());
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Registration failed');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Auto-login after registration
+                    await this.login(username, password);
+                    
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    this.showStatus(error.message || 'Registration failed');
+                }
             }
             
-            toggleSidebar() {
-                this.sidebar.classList.toggle('open');
-                this.overlay.classList.toggle('active');
-            }
-            
-            autoResizeTextarea() {
-                this.chatInput.style.height = 'auto';
-                this.chatInput.style.height = Math.min(this.chatInput.scrollHeight, 120) + 'px';
-            }
-            
-            updateInputPlaceholder() {
-                const placeholders = {
-                    'lesson': 'Describe your lesson plan needs...',
-                    'activity': 'Describe the learning activity...'
-                    // Removed assessment and resource placeholders
-                };
-                this.chatInput.placeholder = placeholders[this.currentType] || 'Message Sahayak...';
-            }
-            
-            async startNewChat() {
+            logout() {
+                localStorage.removeItem('sahayak-access-token');
+                localStorage.removeItem('sahayak-user');
+                localStorage.removeItem('sahayak-conversations');
+                
+                this.isAuthenticated = false;
+                this.accessToken = null;
+                this.user = null;
+                this.conversations = [];
                 this.currentConversationId = null;
-                this.messagesContainer.innerHTML = '';
-                this.showWelcomeScreen();
-                this.chatTitle.textContent = 'Welcome to Sahayak';
-                this.chatSubtitle.textContent = 'AI Teaching Assistant';
-                this.chatInput.value = '';
-                this.chatInput.focus();
-                this.toggleSidebar(); // Close sidebar on mobile
-                this.loadConversations();
+                
+                this.startNewChat();
+                this.showAuthModal();
+                this.showStatus('Logged out successfully');
             }
             
-            showWelcomeScreen() {
-                this.welcomeScreen.style.display = 'flex';
-            }
-            
-            hideWelcomeScreen() {
-                this.welcomeScreen.style.display = 'none';
+            updateUserDisplay() {
+                if (this.user && this.isAuthenticated) {
+                    const userAvatar = document.querySelector('.user-avatar');
+                    const userName = document.querySelector('.user-details h4');
+                    const userRole = document.querySelector('.user-details span');
+                    
+                    if (userAvatar) userAvatar.textContent = this.user.full_name.charAt(0);
+                    if (userName) userName.textContent = this.user.full_name;
+                    if (userRole) userRole.textContent = 'Teacher';
+                }
             }
             
             async sendMessage() {
                 const message = this.chatInput.value.trim();
                 if (!message || this.isGenerating) return;
+                
+                // Check authentication
+                if (!this.isAuthenticated) {
+                    this.showAuthModal();
+                    return;
+                }
                 
                 this.chatInput.value = '';
                 this.autoResizeTextarea();
@@ -1757,525 +1759,305 @@
                 this.sendButton.disabled = true;
                 
                 try {
-                    // Simulate API call
-                    setTimeout(() => {
-                        this.removeTypingIndicator();
-                        this.handleBotResponse(message);
-                        this.isGenerating = false;
-                        this.sendButton.disabled = false;
-                    }, 1500);
+                    // Call backend API
+                    const response = await fetch(`${this.API_BASE_URL}/generate/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.accessToken}`
+                        },
+                        body: JSON.stringify({
+                            prompt: message,
+                            conversation_id: this.currentConversationId,
+                            grade: this.getGradeFromMessage(message)
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to generate response');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    this.removeTypingIndicator();
+                    
+                    // Handle response
+                    if (data.type === 'grade_request') {
+                        // Ask for grade level
+                        this.addMessageToChat('bot', data.response);
+                        this.promptForGrade(message);
+                    } else if (data.type === 'lesson_plan') {
+                        this.addMessageToChat('bot', data.response);
+                        this.currentConversationId = data.conversation_id;
+                        this.updateChatTitle(data.topic);
+                        this.saveConversationToBackend(data);
+                    } else {
+                        this.addMessageToChat('bot', data.response);
+                        this.currentConversationId = data.conversation_id;
+                    }
                     
                 } catch (error) {
                     console.error('Error sending message:', error);
                     this.removeTypingIndicator();
                     this.addMessageToChat('bot', 'Sorry, I encountered an error. Please try again.');
+                } finally {
                     this.isGenerating = false;
                     this.sendButton.disabled = false;
                 }
             }
             
-            handleBotResponse(userMessage) {
-                // Generate AI response based on current type
-                let response = '';
-                
-                switch(this.currentType) {
-                    case 'lesson':
-                        response = this.generateLessonPlanResponse(userMessage);
-                        break;
-                    case 'activity':
-                        response = this.generateActivityResponse(userMessage);
-                        break;
-                    // Removed assessment and resource cases
-                    default:
-                        response = this.generateDefaultResponse(userMessage);
-                }
-                
-                this.addMessageToChat('bot', response);
-                
-                // Update conversation list
-                this.updateConversationList(userMessage);
+            getGradeFromMessage(message) {
+                // Extract grade from message if mentioned
+                const gradePattern = /(grade|class|level)\s*(\d+)/i;
+                const match = message.match(gradePattern);
+                return match ? match[2] : null;
             }
             
-            generateLessonPlanResponse(message) {
-                return `# Lesson Plan: ${message}
-                
-## Learning Objectives
-- Students will understand the key concepts of the topic
-- Students will be able to apply their knowledge in practical scenarios
-- Students will develop critical thinking skills
-
-## Materials Needed
-- Whiteboard and markers
-- Student worksheets
-- Reference materials
-- Technology devices (if applicable)
-
-## Procedure
-1. **Introduction (10 mins)**
-   - Engage students with a thought-provoking question
-   - Introduce the learning objectives
-
-2. **Direct Instruction (20 mins)**
-   - Present key concepts with examples
-   - Use visual aids and demonstrations
-
-3. **Guided Practice (15 mins)**
-   - Work through examples together
-   - Provide immediate feedback
-
-4. **Independent Practice (20 mins)**
-   - Students work on individual tasks
-   - Circulate to provide support
-
-5. **Closure (10 mins)**
-   - Review key concepts
-   - Assign homework if needed
-
-## Differentiation
-- **Support:** Provide sentence starters and visual aids
-- **Challenge:** Include extension activities
-- **ELL Support:** Use simplified language and gestures
-
-## Assessment
-- Formative: Observation during guided practice
-- Summative: End-of-lesson quiz
-- Informal: Exit ticket`;
-            }
-            
-            generateActivityResponse(message) {
-                return `# Learning Activity: ${message}
-                
-## Activity Overview
-A hands-on, engaging activity designed to reinforce key concepts through interactive learning.
-
-## Materials
-- Activity sheets
-- Manipulatives (if applicable)
-- Technology tools
-- Group materials
-
-## Instructions
-1. Divide students into groups of 3-4
-2. Distribute activity materials
-3. Explain the task clearly
-4. Set a time limit (recommended: 25-30 mins)
-5. Circulate to monitor progress
-6. Have groups share their results
-
-## Learning Outcomes
-- Collaborative skills development
-- Application of theoretical knowledge
-- Problem-solving practice
-- Communication skills enhancement
-
-## Teacher's Role
-- Facilitate rather than direct
-- Ask probing questions
-- Provide support where needed
-- Manage time effectively
-
-## Extension Ideas
-1. Have students create their own variations
-2. Connect to real-world applications
-3. Integrate with other subject areas`;
-            }
-            
-            // Removed generateAssessmentResponse and generateResourceResponse functions
-            
-            generateDefaultResponse(message) {
-                return `I understand you're asking about: "${message}"
-
-As an AI teaching assistant, I can help you with:
-1. Creating detailed lesson plans
-2. Designing engaging classroom activities
-3. Developing assessments and rubrics
-4. Generating teaching resources
-5. Differentiating instruction for diverse learners
-6. Integrating technology in teaching
-7. Classroom management strategies
-8. Professional development resources
-
-What specific aspect would you like me to focus on?`;
-            }
-            
-            addMessageToChat(role, content) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${role}`;
-                
-                const avatarDiv = document.createElement('div');
-                avatarDiv.className = 'avatar';
-                avatarDiv.innerHTML = role === 'user' ? 
-                    '<i class="fas fa-user"></i>' : 
-                    '<i class="fas fa-robot"></i>';
-                
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
-                
-                const bubbleDiv = document.createElement('div');
-                bubbleDiv.className = 'message-bubble';
-                
-                const textDiv = document.createElement('div');
-                textDiv.className = 'message-text';
-                textDiv.innerHTML = content.replace(/\n/g, '<br>');
-                
-                bubbleDiv.appendChild(textDiv);
-                
-                if (role === 'bot') {
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'message-actions';
-                    actionsDiv.innerHTML = `
-                        <button class="action-icon copy-btn" title="Copy">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                        <button class="action-icon save-btn" title="Save">
-                            <i class="fas fa-save"></i>
-                        </button>
-                    `;
-                    bubbleDiv.appendChild(actionsDiv);
-                    
-                    // Add event listeners to action buttons
-                    actionsDiv.querySelector('.copy-btn').addEventListener('click', () => {
-                        this.copyToClipboard(content);
-                        this.showStatus('Copied to clipboard!');
-                    });
-                    
-                    actionsDiv.querySelector('.save-btn').addEventListener('click', () => {
-                        this.saveContent(content);
-                        this.showStatus('Content saved!');
-                    });
-                }
-                
-                contentDiv.appendChild(bubbleDiv);
-                messageDiv.appendChild(avatarDiv);
-                messageDiv.appendChild(contentDiv);
-                
-                this.messagesContainer.appendChild(messageDiv);
-                this.scrollToBottom();
-                
-                // Update chat title for first bot response
-                if (role === 'bot' && this.chatTitle.textContent === 'Welcome to Sahayak') {
-                    const firstLine = content.split('\n')[0].replace('# ', '').replace('## ', '');
-                    this.chatTitle.textContent = firstLine.substring(0, 40) + (firstLine.length > 40 ? '...' : '');
-                    this.chatSubtitle.textContent = 'AI Generated Plan';
-                }
-            }
-            
-            copyToClipboard(text) {
-                navigator.clipboard.writeText(text).then(() => {
-                    this.showStatus('Copied to clipboard!');
-                }).catch(err => {
-                    console.error('Failed to copy: ', err);
-                });
-            }
-            
-            saveContent(content) {
-                // Save content to localStorage for demo
-                const savedItems = JSON.parse(localStorage.getItem('sahayak-saved-items') || '[]');
-                savedItems.push({
-                    id: Date.now().toString(),
-                    content: content,
-                    savedAt: new Date().toISOString(),
-                    type: this.currentType
-                });
-                localStorage.setItem('sahayak-saved-items', JSON.stringify(savedItems));
-            }
-            
-            showTypingIndicator() {
-                const typingDiv = document.createElement('div');
-                typingDiv.className = 'message bot';
-                typingDiv.id = 'typingIndicator';
-                
-                const avatarDiv = document.createElement('div');
-                avatarDiv.className = 'avatar';
-                avatarDiv.innerHTML = '<i class="fas fa-robot"></i>';
-                
-                const typingContent = document.createElement('div');
-                typingContent.className = 'typing-indicator';
-                typingContent.innerHTML = `
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+            promptForGrade(originalMessage) {
+                // Create grade selection buttons
+                const gradeDiv = document.createElement('div');
+                gradeDiv.className = 'grade-selection';
+                gradeDiv.innerHTML = `
+                    <div style="margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap;">
+                        ${[1,2,3,4,5,6,7,8,9,10,11,12].map(grade => `
+                            <button class="grade-btn" data-grade="${grade}">Grade ${grade}</button>
+                        `).join('')}
+                    </div>
                 `;
                 
-                typingDiv.appendChild(avatarDiv);
-                typingDiv.appendChild(typingContent);
-                this.messagesContainer.appendChild(typingDiv);
+                // Add to messages
+                this.messagesContainer.appendChild(gradeDiv);
+                
+                // Add event listeners
+                gradeDiv.querySelectorAll('.grade-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const grade = btn.dataset.grade;
+                        gradeDiv.remove();
+                        
+                        // Resend message with grade
+                        await this.sendMessageWithGrade(originalMessage, grade);
+                    });
+                });
+                
                 this.scrollToBottom();
             }
             
-            removeTypingIndicator() {
-                const typingIndicator = document.getElementById('typingIndicator');
-                if (typingIndicator) {
-                    typingIndicator.remove();
+            async sendMessageWithGrade(message, grade) {
+                this.isGenerating = true;
+                this.sendButton.disabled = true;
+                
+                try {
+                    const response = await fetch(`${this.API_BASE_URL}/generate/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.accessToken}`
+                        },
+                        body: JSON.stringify({
+                            prompt: message,
+                            conversation_id: this.currentConversationId,
+                            grade: grade
+                        })
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to generate response');
+                    
+                    const data = await response.json();
+                    this.addMessageToChat('bot', data.response);
+                    
+                    if (data.lesson_id) {
+                        this.currentConversationId = data.conversation_id;
+                        this.updateChatTitle(data.topic);
+                        this.saveConversationToBackend(data);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.addMessageToChat('bot', 'Sorry, I encountered an error.');
+                } finally {
+                    this.isGenerating = false;
+                    this.sendButton.disabled = false;
                 }
             }
             
-            scrollToBottom() {
-                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            updateChatTitle(topic) {
+                this.chatTitle.textContent = topic;
+                this.chatSubtitle.textContent = 'AI Generated Plan';
             }
             
-            updateConversationList(message) {
-                if (!this.currentConversationId) {
-                    this.currentConversationId = Date.now().toString();
-                    
+            async saveConversationToBackend(data) {
+                try {
+                    // The conversation is already saved in backend via the generate endpoint
+                    // We just need to update local list
                     const conversation = {
-                        id: this.currentConversationId,
-                        title: message.substring(0, 30) + (message.length > 30 ? '...' : ''),
+                        id: data.conversation_id,
+                        title: data.topic || data.response.substring(0, 30),
                         timestamp: new Date().toISOString(),
-                        type: this.currentType
+                        type: 'lesson'
                     };
                     
                     this.conversations.unshift(conversation);
                     this.saveConversations();
                     this.renderConversationList();
+                    
+                } catch (error) {
+                    console.error('Error saving conversation:', error);
                 }
             }
             
-            saveConversations() {
-                localStorage.setItem('sahayak-conversations', JSON.stringify(this.conversations));
-            }
-            
-            loadConversations() {
-                const saved = localStorage.getItem('sahayak-conversations');
-                this.conversations = saved ? JSON.parse(saved) : [];
-                this.renderConversationList();
-            }
-            
-            renderConversationList() {
-                this.conversationList.innerHTML = '';
+            async loadConversations() {
+                if (!this.isAuthenticated) return;
                 
-                this.conversations.forEach(conv => {
-                    const item = document.createElement('div');
-                    item.className = 'conversation-item';
-                    
-                    if (conv.id === this.currentConversationId) {
-                        item.classList.add('active');
-                    }
-                    
-                    item.innerHTML = `
-                        <div class="conversation-title">
-                            <i class="fas fa-${this.getIconForType(conv.type)}"></i>
-                            ${conv.title}
-                        </div>
-                        <div class="conversation-meta">
-                            <span>${new Date(conv.timestamp).toLocaleDateString()}</span>
-                            <button class="delete-conv-btn" data-id="${conv.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    
-                    item.addEventListener('click', (e) => {
-                        if (!e.target.closest('.delete-conv-btn')) {
-                            this.loadConversation(conv.id);
+                try {
+                    const response = await fetch(`${this.API_BASE_URL}/conversations/`, {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`
                         }
                     });
                     
-                    item.querySelector('.delete-conv-btn').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.showDeleteModal(conv.id);
-                    });
-                    
-                    this.conversationList.appendChild(item);
-                });
-            }
-            
-            getIconForType(type) {
-                const icons = {
-                    'lesson': 'book',
-                    'activity': 'puzzle-piece'
-                    // Removed assessment and resource icons
-                };
-                return icons[type] || 'comment';
-            }
-            
-            loadConversation(conversationId) {
-                // In a real app, this would load from a database
-                // For demo, we'll just show a sample
-                this.currentConversationId = conversationId;
-                this.messagesContainer.innerHTML = '';
-                this.hideWelcomeScreen();
-                
-                const conv = this.conversations.find(c => c.id === conversationId);
-                if (conv) {
-                    this.chatTitle.textContent = conv.title;
-                    this.chatSubtitle.textContent = 'AI Generated Plan';
-                    this.currentType = conv.type;
-                    
-                    // Update active type
-                    this.lessonTypeSelector.querySelectorAll('.type-btn').forEach(btn => {
-                        btn.classList.toggle('active', btn.dataset.type === conv.type);
-                    });
-                    
-                    // Show sample messages
-                    this.addMessageToChat('user', conv.title);
-                    this.addMessageToChat('bot', this.generateSampleResponse(conv.type));
-                }
-                
-                this.renderConversationList();
-                this.toggleSidebar(); // Close sidebar on mobile
-            }
-            
-            generateSampleResponse(type) {
-                const samples = {
-                    'lesson': 'Here is your lesson plan...',
-                    'activity': 'Here is your activity...'
-                    // Removed assessment and resource samples
-                };
-                return samples[type] || 'Here is your content...';
-            }
-            
-            toggleTheme() {
-                this.isDarkMode = !this.isDarkMode;
-                this.applyTheme();
-                localStorage.setItem('sahayak-dark-mode', this.isDarkMode);
-            }
-            
-            applyTheme() {
-                if (this.isDarkMode) {
-                    document.body.classList.add('dark-mode');
-                    this.themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
-                } else {
-                    document.body.classList.remove('dark-mode');
-                    this.themeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
-                }
-            }
-            
-            showStatus(message) {
-                this.statusMessage.textContent = message;
-                this.statusNotification.style.display = 'flex';
-                
-                setTimeout(() => {
-                    this.statusNotification.style.display = 'none';
-                }, 3000);
-            }
-            
-            showModal(modal) {
-                modal.style.display = 'flex';
-            }
-            
-            hideModal(modal) {
-                modal.style.display = 'none';
-            }
-            
-            showExportModal() {
-                this.showModal(this.exportModal);
-            }
-            
-            exportLessonPlan(format) {
-                // Get the latest bot message content
-                const botMessages = this.messagesContainer.querySelectorAll('.message.bot .message-text');
-                if (botMessages.length === 0) {
-                    this.showStatus('No content to export');
-                    return;
-                }
-                
-                const content = botMessages[botMessages.length - 1].innerText;
-                let mimeType, fileExtension;
-                
-                switch(format) {
-                    case 'pdf':
-                        mimeType = 'application/pdf';
-                        fileExtension = 'pdf';
-                        break;
-                    case 'docx':
-                        mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-                        fileExtension = 'docx';
-                        break;
-                    case 'txt':
-                    default:
-                        mimeType = 'text/plain';
-                        fileExtension = 'txt';
-                }
-                
-                const blob = new Blob([content], { type: mimeType });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `sahayak_${this.currentType}_${new Date().toISOString().slice(0, 10)}.${fileExtension}`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                this.hideModal(this.exportModal);
-                this.showStatus(`Exported as ${format.toUpperCase()}!`);
-            }
-            
-            saveLessonPlan() {
-                const botMessages = this.messagesContainer.querySelectorAll('.message.bot .message-text');
-                if (botMessages.length === 0) {
-                    this.showStatus('No lesson plan to save');
-                    return;
-                }
-                
-                const content = botMessages[botMessages.length - 1].innerText;
-                const savedPlans = JSON.parse(localStorage.getItem('sahayak-saved-plans') || '[]');
-                
-                savedPlans.push({
-                    id: Date.now().toString(),
-                    title: this.chatTitle.textContent,
-                    content: content,
-                    savedAt: new Date().toISOString(),
-                    type: this.currentType,
-                    conversationId: this.currentConversationId
-                });
-                
-                localStorage.setItem('sahayak-saved-plans', JSON.stringify(savedPlans));
-                this.showStatus('Lesson plan saved!');
-            }
-            
-            showClearChatModal() {
-                if (this.messagesContainer.children.length > 1) {
-                    this.showModal(this.deleteModal);
-                } else {
-                    this.showStatus('Chat is already empty');
-                }
-            }
-            
-            clearCurrentChat() {
-                if (this.messagesContainer.children.length > 1) {
-                    this.startNewChat();
-                }
-            }
-            
-            attachFile() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.pdf,.doc,.docx,.txt,.jpg,.png';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        this.showStatus(`Attached: ${file.name}`);
-                    }
-                };
-                input.click();
-            }
-            
-            showTemplates() {
-                this.showStatus('Lesson template library coming soon!');
-            }
-            
-            showMyPlans() {
-                this.showStatus('Saved plans feature coming soon!');
-            }
-            
-            showDeleteModal(conversationId) {
-                this.conversationToDelete = conversationId;
-                this.showModal(this.deleteModal);
-            }
-            
-            confirmDelete() {
-                if (this.conversationToDelete) {
-                    this.conversations = this.conversations.filter(c => c.id !== this.conversationToDelete);
-                    this.saveConversations();
-                    
-                    if (this.currentConversationId === this.conversationToDelete) {
-                        this.startNewChat();
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.conversations = data.map(conv => ({
+                            id: conv.id,
+                            title: conv.title,
+                            timestamp: conv.created_at,
+                            type: 'lesson'
+                        }));
+                    } else {
+                        // Fallback to localStorage if API fails
+                        const saved = localStorage.getItem('sahayak-conversations');
+                        this.conversations = saved ? JSON.parse(saved) : [];
                     }
                     
                     this.renderConversationList();
-                    this.hideModal(this.deleteModal);
-                    this.showStatus('Conversation deleted');
+                    
+                } catch (error) {
+                    console.error('Error loading conversations:', error);
+                    const saved = localStorage.getItem('sahayak-conversations');
+                    this.conversations = saved ? JSON.parse(saved) : [];
+                    this.renderConversationList();
                 }
+            }
+            
+            async loadConversation(conversationId) {
+                try {
+                    const response = await fetch(`${this.API_BASE_URL}/conversation/${conversationId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        this.currentConversationId = conversationId;
+                        this.messagesContainer.innerHTML = '';
+                        this.hideWelcomeScreen();
+                        
+                        // Display messages
+                        data.messages.forEach(msg => {
+                            this.addMessageToChat(msg.role, msg.content);
+                        });
+                        
+                        this.updateChatTitle(data.title);
+                        this.currentType = 'lesson';
+                        
+                        // Update active type
+                        this.lessonTypeSelector.querySelectorAll('.type-btn').forEach(btn => {
+                            btn.classList.toggle('active', btn.dataset.type === 'lesson');
+                        });
+                        
+                        this.renderConversationList();
+                        this.toggleSidebar();
+                        
+                    } else {
+                        throw new Error('Failed to load conversation');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading conversation:', error);
+                    this.showStatus('Failed to load conversation');
+                }
+            }
+            
+            async deleteConversation(conversationId) {
+                try {
+                    const response = await fetch(`${this.API_BASE_URL}/conversation/${conversationId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // Remove from local list
+                        this.conversations = this.conversations.filter(c => c.id !== conversationId);
+                        this.saveConversations();
+                        
+                        if (this.currentConversationId === conversationId) {
+                            this.startNewChat();
+                        }
+                        
+                        this.renderConversationList();
+                        this.showStatus('Conversation deleted');
+                    } else {
+                        throw new Error('Failed to delete');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error deleting conversation:', error);
+                    this.showStatus('Failed to delete conversation');
+                }
+            }
+            
+            // ... (keep all your other existing methods) ...
+            
+            attachEventListeners() {
+                // ... (keep your existing event listeners) ...
+                
+                // Add auth event listeners
+                this.loginTab?.addEventListener('click', () => this.switchToLogin());
+                this.registerTab?.addEventListener('click', () => this.switchToRegister());
+                this.loginForm?.addEventListener('submit', (e) => this.handleLogin(e));
+                this.registerForm?.addEventListener('submit', (e) => this.handleRegister(e));
+                this.logoutBtn?.addEventListener('click', () => this.logout());
+            }
+            
+            switchToLogin() {
+                this.loginTab.classList.add('active');
+                this.registerTab.classList.remove('active');
+                this.loginForm.style.display = 'block';
+                this.registerForm.style.display = 'none';
+            }
+            
+            switchToRegister() {
+                this.registerTab.classList.add('active');
+                this.loginTab.classList.remove('active');
+                this.registerForm.style.display = 'block';
+                this.loginForm.style.display = 'none';
+            }
+            
+            handleLogin(e) {
+                e.preventDefault();
+                const username = e.target.querySelector('input[type="text"]').value;
+                const password = e.target.querySelector('input[type="password"]').value;
+                this.login(username, password);
+            }
+            
+            handleRegister(e) {
+                e.preventDefault();
+                const username = e.target.querySelector('input[name="username"]').value;
+                const email = e.target.querySelector('input[type="email"]').value;
+                const fullName = e.target.querySelector('input[name="fullName"]').value;
+                const password = e.target.querySelector('input[type="password"]').value;
+                const confirmPassword = e.target.querySelector('input[name="confirmPassword"]').value;
+                
+                if (password !== confirmPassword) {
+                    this.showStatus('Passwords do not match');
+                    return;
+                }
+                
+                this.register(username, email, fullName, password);
             }
         }
         

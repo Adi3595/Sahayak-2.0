@@ -1481,7 +1481,7 @@
                     
                     <!-- Step 2 -->
                     <div class="workflow-step text-center">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-emerald-500 mx-auto mb-6 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-emerald-500 mx-auto mb-6 flex items-center justify-content: center">
                             <span class="text-3xl font-bold text-white">2</span>
                         </div>
                         <h3 class="text-2xl font-bold mb-4">AI Magic Happens</h3>
@@ -1980,7 +1980,7 @@
                                 <form id="directEmailLogin" class="space-y-6">
                                     <div>
                                         <label class="block text-gray-400 mb-2">Email Address</label>
-                                        <input type="email" placeholder="teacher@school.edu" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
+                                        <input type="email" id="directEmail" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" placeholder="teacher@school.edu" required>
                                     </div>
                                     
                                     <div class="relative">
@@ -1988,7 +1988,10 @@
                                             <label class="block text-gray-400">Password</label>
                                             <a href="#" class="text-purple-400 hover:text-purple-300 text-sm">Forgot Password?</a>
                                         </div>
-                                        <input type="password" placeholder="Enter your password" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
+                                        <input type="password" id="directPassword" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" placeholder="Enter your password" required>
+                                        <button type="button" id="directTogglePassword" class="password-toggle">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
                                     </div>
                                     
                                     <div class="flex items-center">
@@ -2140,23 +2143,23 @@
                                     <div class="grid md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-gray-400 mb-2">First Name</label>
-                                            <input type="text" placeholder="Priya" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
+                                            <input type="text" id="firstName" placeholder="Priya" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
                                         </div>
                                         <div>
                                             <label class="block text-gray-400 mb-2">Last Name</label>
-                                            <input type="text" placeholder="Sharma" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
+                                            <input type="text" id="lastName" placeholder="Sharma" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
                                         </div>
                                     </div>
                                     
                                     <div>
                                         <label class="block text-gray-400 mb-2">Email Address</label>
-                                        <input type="email" placeholder="teacher@school.edu" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
+                                        <input type="email" id="signupEmail" placeholder="teacher@school.edu" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
                                     </div>
                                     
                                     <div class="relative">
                                         <label class="block text-gray-400 mb-2">Password</label>
-                                        <input type="password" placeholder="Create a strong password" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
-                                        <button type="button" class="password-toggle">
+                                        <input type="password" id="signupPassword" placeholder="Create a strong password" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none" required>
+                                        <button type="button" id="signupTogglePassword" class="password-toggle">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <p class="text-xs text-gray-500 mt-2">Minimum 8 characters with letters and numbers</p>
@@ -2178,13 +2181,13 @@
                                     
                                     <div>
                                         <label class="block text-gray-400 mb-2">School/Organization Name</label>
-                                        <input type="text" placeholder="Rural Public School" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none">
+                                        <input type="text" id="schoolName" placeholder="Rural Public School" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none">
                                     </div>
                                     
                                     <div class="grid md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-gray-400 mb-2">State</label>
-                                            <select class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none">
+                                            <select id="state" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none">
                                                 <option value="">Select State</option>
                                                 <option value="maharashtra">Maharashtra</option>
                                                 <option value="up">Uttar Pradesh</option>
@@ -2196,7 +2199,7 @@
                                         </div>
                                         <div>
                                             <label class="block text-gray-400 mb-2">School Type</label>
-                                            <select class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none">
+                                            <select id="schoolType" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none">
                                                 <option value="">Select Type</option>
                                                 <option value="government">Government School</option>
                                                 <option value="private">Private School</option>
@@ -2208,7 +2211,7 @@
                                     
                                     <div>
                                         <label class="block text-gray-400 mb-2">Primary Teaching Language</label>
-                                        <select class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none">
+                                        <select id="language" class="w-full auth-input rounded-xl px-4 py-3 focus:outline-none">
                                             <option value="">Select Language</option>
                                             <option value="hindi">Hindi</option>
                                             <option value="marathi">Marathi</option>
@@ -2240,7 +2243,7 @@
                                         <button type="button" id="prevStep3" class="auth-input py-3 rounded-xl font-semibold hover:bg-white/10 transition-colors">
                                             Back
                                         </button>
-                                        <button type="submit" class="btn-primary bg-gradient-to-r from-purple-600 to-emerald-500 rounded-xl py-3 font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all">
+                                        <button type="submit" id="signupSubmit" class="btn-primary bg-gradient-to-r from-purple-600 to-emerald-500 rounded-xl py-3 font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all">
                                             Start Free 30-Day Trial
                                         </button>
                                     </div>
@@ -2282,19 +2285,11 @@
             </div>
         </div>
     </div>
-
+    
+    <!-- Firebase Config Script -->
+    <script src="firebase-config.js"></script>
+    
     <script>
-        // Firebase Configuration - REPLACE WITH YOUR CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyD0KQTcW83uRT71gPyI7IitC3P2QtkOJnc",
-            authDomain: "sahayak-52540.firebaseapp.com",
-            projectId: "sahayak-52540",
-            storageBucket: "sahayak-52540.firebasestorage.app",
-            messagingSenderId: "226854127676",
-            appId: "1:226854127676:web:e116d4a1b30f78c4ef1b39",
-            measurementId: "G-42Z741X2RB"
-        };
-
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -2404,7 +2399,7 @@
                 const sendOtpBtn = document.getElementById('sendOtpBtn');
                 setButtonLoading(sendOtpBtn, true);
                 
-                // Configure reCAPTCHA
+                // Use browser's built-in reCAPTCHA
                 const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sendOtpBtn', {
                     size: 'invisible'
                 });
@@ -2569,11 +2564,12 @@
             document.getElementById('mobileUserProfile').classList.remove('hidden');
             
             // Update user info
-            document.getElementById('userAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=7c3aed&color=fff`;
+            const avatarUrl = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=7c3aed&color=fff`;
+            document.getElementById('userAvatar').src = avatarUrl;
             document.getElementById('userName').textContent = user.displayName || user.email;
             document.getElementById('userEmail').textContent = user.email;
             
-            document.getElementById('mobileUserAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=7c3aed&color=fff`;
+            document.getElementById('mobileUserAvatar').src = avatarUrl;
             document.getElementById('mobileUserName').textContent = user.displayName || user.email;
             document.getElementById('mobileUserEmail').textContent = user.email;
         }
@@ -2793,17 +2789,17 @@
                 }
             });
             
-            // Toggle password visibility
+            // Toggle password visibility for simple login
             document.getElementById('togglePassword')?.addEventListener('click', function() {
                 togglePasswordVisibility('passwordInput', this);
             });
             
-            // Direct email login form
+            // Direct email login form in auth page
             document.getElementById('directEmailLogin')?.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                const email = e.target.querySelector('input[type="email"]').value;
-                const password = e.target.querySelector('input[type="password"]').value;
+                const email = document.getElementById('directEmail').value;
+                const password = document.getElementById('directPassword').value;
                 const button = e.target.querySelector('button[type="submit"]');
                 
                 setButtonLoading(button, true);
@@ -2817,6 +2813,11 @@
                 }
             });
             
+            // Toggle password visibility for direct email login
+            document.getElementById('directTogglePassword')?.addEventListener('click', function() {
+                togglePasswordVisibility('directPassword', this);
+            });
+            
             // Signup form steps
             const signupStep1 = document.getElementById('signupStep1');
             const signupStep2 = document.getElementById('signupStep2');
@@ -2825,8 +2826,8 @@
             const nextStep2 = document.getElementById('nextStep2');
             const prevStep2 = document.getElementById('prevStep2');
             const prevStep3 = document.getElementById('prevStep3');
+            const signupSubmit = document.getElementById('signupSubmit');
             const steps = document.querySelectorAll('.step');
-            let currentStep = 1;
             let selectedRole = 'teacher';
             
             // Role selection
@@ -2847,15 +2848,13 @@
                 steps[0].classList.remove('active');
                 steps[0].classList.add('completed');
                 steps[1].classList.add('active');
-                currentStep = 2;
             });
             
             nextStep2?.addEventListener('click', () => {
-                const form = document.getElementById('signupStep2');
-                const firstName = form.querySelector('input[type="text"]:nth-child(1)').value;
-                const lastName = form.querySelector('input[type="text"]:nth-child(2)').value;
-                const email = form.querySelector('input[type="email"]').value;
-                const password = form.querySelector('input[type="password"]').value;
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
                 
                 if (!firstName || !lastName || !email || !password) {
                     showToast('Please fill all fields', 'error');
@@ -2872,7 +2871,6 @@
                 steps[1].classList.remove('active');
                 steps[1].classList.add('completed');
                 steps[2].classList.add('active');
-                currentStep = 3;
             });
             
             prevStep2?.addEventListener('click', () => {
@@ -2881,7 +2879,6 @@
                 steps[1].classList.remove('active');
                 steps[0].classList.remove('completed');
                 steps[0].classList.add('active');
-                currentStep = 1;
             });
             
             prevStep3?.addEventListener('click', () => {
@@ -2890,36 +2887,33 @@
                 steps[2].classList.remove('active');
                 steps[1].classList.remove('completed');
                 steps[1].classList.add('active');
-                currentStep = 2;
+            });
+            
+            // Toggle password visibility for signup
+            document.getElementById('signupTogglePassword')?.addEventListener('click', function() {
+                togglePasswordVisibility('signupPassword', this);
             });
             
             // Signup form submission
-            document.getElementById('signupStep3')?.addEventListener('submit', async (e) => {
+            signupStep3?.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                const form = e.target;
-                const step2Form = document.getElementById('signupStep2');
-                
-                // Get data from step 2
-                const firstName = step2Form.querySelector('input[type="text"]:nth-child(1)').value;
-                const lastName = step2Form.querySelector('input[type="text"]:nth-child(2)').value;
-                const email = step2Form.querySelector('input[type="email"]').value;
-                const password = step2Form.querySelector('input[type="password"]').value;
-                
-                // Get data from step 3
-                const school = form.querySelector('input[type="text"]').value;
-                const state = form.querySelector('select:nth-child(1)').value;
-                const schoolType = form.querySelector('select:nth-child(2)').value;
-                const language = form.querySelector('select:nth-child(3)').value;
-                const terms = form.querySelector('#terms').checked;
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                const school = document.getElementById('schoolName').value;
+                const state = document.getElementById('state').value;
+                const schoolType = document.getElementById('schoolType').value;
+                const language = document.getElementById('language').value;
+                const terms = document.getElementById('terms').checked;
                 
                 if (!terms) {
                     showToast('Please agree to the Terms of Service', 'error');
                     return;
                 }
                 
-                const button = form.querySelector('button[type="submit"]');
-                setButtonLoading(button, true);
+                setButtonLoading(signupSubmit, true);
                 
                 try {
                     await signUpWithEmail(email, password, {
@@ -2934,7 +2928,7 @@
                 } catch (error) {
                     // Error already handled
                 } finally {
-                    setButtonLoading(button, false);
+                    setButtonLoading(signupSubmit, false);
                 }
             });
             
@@ -3051,7 +3045,6 @@
 
         // Demo modal function (keep existing)
         function openDemoModal(feature) {
-            currentFeatureDemo = feature;
             const modal = document.getElementById('demoModal');
             const demoContent = document.getElementById('demoContent');
             const tryFeatureBtn = document.getElementById('tryFeatureBtn');

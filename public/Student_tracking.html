@@ -1598,7 +1598,10 @@
 
     <script>
         // Backend API URL - Connect to your FastAPI backend
-        const API_BASE_URL = 'http://localhost:8000'; // Change this to match your backend URL
+        const API_BASE_URL = window.location.hostname.includes('localhost') ||
+                     window.location.hostname.includes('127.0.0.1')
+  ? 'http://127.0.0.5:8000'
+  : 'https://sahayak-2-0.onrender.com';
         
         // Global variables
         let performanceChart, gradeChart;
