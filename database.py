@@ -91,7 +91,7 @@ class ConversationMessage(Base):
     role = Column(String(20), nullable=False)  # user or assistant
     content = Column(Text, nullable=False)
     message_type = Column(String(50), default="chat")  # chat, lesson_plan, etc.
-    metadata = Column(JSON, default={})  # grade, topic, etc.
+    extra_data = Column(JSON, default=dict)
     created_at = Column(DateTime(timezone=True), default=func.now())
     
     # Relationships
@@ -127,7 +127,7 @@ class GeneratedFile(Base):
     file_type = Column(String(50), nullable=False)  # pdf, docx, pptx, etc.
     file_path = Column(String(500), nullable=False)
     file_size = Column(Integer, nullable=False)  # in bytes
-    metadata = Column(JSON, default={})  # topic, grade, etc.
+    extra_data = Column(JSON, default=dict)
     created_at = Column(DateTime(timezone=True), default=func.now())
     expires_at = Column(DateTime(timezone=True), nullable=True)
     is_active = Column(Boolean, default=True)
