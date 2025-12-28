@@ -151,10 +151,6 @@ The backend serves static HTML files for the frontend interface. Key pages inclu
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - Built with [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
