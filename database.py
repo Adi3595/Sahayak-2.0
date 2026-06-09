@@ -13,7 +13,12 @@ if DATABASE_URL:
     # For PostgreSQL on Render
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_recycle=300)
+    engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_recycle=300,
+    connect_args={"sslmode": "require"}
+)
 else:
     # Fallback to SQLite for local development
     DATABASE_URL = "sqlite:///./sahayak.db"
