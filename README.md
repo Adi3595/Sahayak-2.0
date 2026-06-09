@@ -151,7 +151,6 @@ The backend serves static HTML files for the frontend interface. Key pages inclu
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-
 ## 🙏 Acknowledgments
 
 - Built with [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
