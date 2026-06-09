@@ -928,10 +928,14 @@
 
     </main>
 
+    <script src="auth.js"></script>
 
     <script>
         // Backend API URL
-        const API_BASE_URL = 'http://127.0.0.4:8000';
+        const API_BASE_URL = window.location.hostname.includes('localhost') ||
+                     window.location.hostname.includes('127.0.0.1')
+  ? 'http://127.0.0.5:8000'
+  : 'https://sahayak-2-0.onrender.com';
         
         document.addEventListener('DOMContentLoaded', function() {
             // Sidebar functionality
