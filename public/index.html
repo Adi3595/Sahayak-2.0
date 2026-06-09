@@ -2288,7 +2288,6 @@
     
     <!-- Firebase Config Script -->
     <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
     
     <script>
         // Initialize Firebase
@@ -2541,6 +2540,18 @@
                 console.log('User data saved to Firestore');
             } catch (error) {
                 console.error('Error saving user data:', error);
+            }
+        }
+
+        async function signOut() {
+            try {
+                await auth.signOut();
+                showToast('Signed out successfully', 'success');
+                updateUIForLoggedOutUser();
+                hideProfileDropdown();
+            } catch (error) {
+                console.error('Sign out error:', error);
+                showToast('Sign out failed', 'error');
             }
         }
 
@@ -2949,285 +2960,285 @@
 
         // Initialize existing functionality
         function initializeExistingFunctionality() {
-            // Feature navigation cards - Fixed navigation
-            document.querySelectorAll('.feature-nav-card').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const feature = card.getAttribute('data-feature');
-                    if (feature) {
-                        // Direct navigation to feature pages
-                        navigateToFeature(feature);
-                    }
-                });
-            });
-            
-            // Demo button
-            document.getElementById('demoBtn')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                openDemoModal('lesson-plan');
-            });
-            
-            // Book demo button
-            document.getElementById('bookDemoBtn')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                openDemoModal('lesson-plan');
-            });
-            
-            // Modal close buttons
-            document.getElementById('closeDemoModal')?.addEventListener('click', closeDemoModal);
-            document.getElementById('closeDemoBtn')?.addEventListener('click', closeDemoModal);
-            
-            // Close modal when clicking outside
-            document.getElementById('demoModal')?.addEventListener('click', (e) => {
-                if (e.target.id === 'demoModal') {
-                    closeDemoModal();
-                }
-            });
-            
-            // Smooth scroll for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                        document.getElementById('mobileMenu')?.classList.add('hidden');
-                    }
-                });
-            });
-            
-            // Language selector
-            const langSelector = document.querySelector('.language-selector');
-            if (langSelector) {
-                const langDropdown = langSelector.querySelector('.dropdown');
-                
-                langSelector.addEventListener('click', (e) => {
-                    if (e.target.closest('button')) {
-                        langDropdown.classList.toggle('hidden');
-                    }
-                });
-                
-                document.querySelectorAll('.dropdown a').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const language = link.textContent;
-                        const button = langSelector.querySelector('button');
-                        button.innerHTML = `
-                            <i class="fas fa-language gradient-text"></i>
-                            <span>${language}</span>
-                            <i class="fas fa-chevron-down text-sm"></i>
-                        `;
-                        langDropdown.classList.add('hidden');
-                        showToast(`Language changed to ${language}`, 'info');
-                    });
-                });
-                
-                // Close dropdown when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (!langSelector.contains(e.target)) {
-                        langDropdown?.classList.add('hidden');
-                    }
-                });
-            }
-            
-            // Handle "Get Started" and other CTA buttons
-            document.querySelectorAll('[onclick="showSignupPage()"]').forEach(btn => {
-                btn.removeAttribute('onclick');
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    showSignupPage();
-                });
-            });
-            
-            // Handle login buttons
-            document.querySelectorAll('[onclick="openSimpleLoginModal()"]').forEach(btn => {
-                btn.removeAttribute('onclick');
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    openSimpleLoginModal();
-                });
-            });
-        }
-
-        function navigateToFeature(feature) {
-            // Check if user is logged in
-            const user = auth.currentUser;
-            
-            const featureRoutes = {
-                'lesson-plan': 'lesson_planning.html',
-                'differentiated-materials': 'Differentiated_materials.html',
-                'fun-activities': 'fun_activities.html',
-                'blackboard-diagrams': 'blackboard_diagrams.html',
-                'knowledge-base': 'knowledge_base.html',
-                'student-progress': 'Student_tracking.html'
-            };
-            
-            const targetPage = featureRoutes[feature];
-            
-            if (!targetPage) {
-                showToast('Feature coming soon!', 'info');
-                return;
-            }
-            
-            if (user) {
-                // User is logged in, navigate to feature page
-                window.location.href = targetPage;
-            } else {
-                // User not logged in, show signup prompt
-                showToast('Please sign up to access this feature', 'info');
-                showSignupPage();
-            }
-        }
-
-                function openDemoModal(feature) {
-            const modal = document.getElementById('demoModal');
-            const demoContent = document.getElementById('demoContent');
-            const tryFeatureBtn = document.getElementById('tryFeatureBtn');
-            
-            if (!modal) return;
-            
-            modal.classList.add('active');
-            demoContent.innerHTML = `
-                <div class="text-center py-8">
-                    <div class="spinner mx-auto mb-4"></div>
-                    <p class="text-gray-400">Loading demo...</p>
-                </div>
-            `;
-            
-            const featureTitles = {
-                'lesson-plan': 'AI Lesson Planning',
-                'differentiated-materials': 'Differentiated Materials',
-                'fun-activities': 'Educational Games',
-                'blackboard-diagrams': 'Visual Aids',
-                'knowledge-base': 'Knowledge Base',
-                'student-progress': 'Student Progress Tracking'
-            };
-            
-            const featureDescriptions = {
-                'lesson-plan': 'Create comprehensive lesson plans in minutes. AI generates learning objectives, activities, assessments, and teaching strategies tailored to your grade level.',
-                'differentiated-materials': 'Generate worksheets and learning materials at multiple grade levels from a single source. Perfect for multi-grade classrooms!',
-                'fun-activities': 'Access 50+ educational games and activities that work with limited resources. Make learning fun and engaging!',
-                'blackboard-diagrams': 'Create simple, easy-to-draw diagrams for your blackboard. Step-by-step instructions for visual teaching.',
-                'knowledge-base': 'Get simple explanations for complex concepts with local language support and cultural analogies.',
-                'student-progress': 'Track individual student progress, generate reports, and identify learning gaps with visual analytics.'
-            };
-            
-            const header = document.querySelector('#demoModal .modal-header h3');
-            if (header) {
-                header.textContent = featureTitles[feature] || 'Feature Demo';
-            }
-            
-            setTimeout(() => {
-                demoContent.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="glass rounded-xl p-5">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-600/5 flex items-center justify-center">
-                                    <i class="fas ${getFeatureIcon(feature)} text-2xl gradient-text"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-xl font-bold">${featureTitles[feature] || 'Feature Demo'}</h4>
-                                    <p class="text-sm text-gray-400">AI-Powered Teaching Assistant</p>
-                                </div>
-                            </div>
-                            <p class="text-gray-300 leading-relaxed">
-                                ${featureDescriptions[feature] || 'Transform your teaching with Sahayak AI. Save hours of preparation time and deliver better lessons.'}
-                            </p>
-                            <div class="mt-4 p-3 bg-purple-600/10 rounded-lg">
-                                <div class="flex items-center gap-2 text-sm text-purple-300">
-                                    <i class="fas fa-star"></i>
-                                    <span>Used by 500+ teachers across India</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center text-sm text-gray-500 justify-center gap-4">
-                            <div class="flex items-center gap-1">
-                                <i class="fas fa-bolt text-amber-500"></i>
-                                <span>Instant generation</span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <i class="fas fa-language text-emerald-500"></i>
-                                <span>8 languages</span>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <i class="fas fa-wifi-slash text-blue-500"></i>
-                                <span>Works offline</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }, 500);
-            
-            // Update try feature button
-            if (tryFeatureBtn) {
-                tryFeatureBtn.onclick = () => {
-                    closeDemoModal();
-                    navigateToFeature(feature);
-                };
-            }
-        }
-
-        function getFeatureIcon(feature) {
-            const icons = {
-                'lesson-plan': 'fa-calendar-alt',
-                'differentiated-materials': 'fa-layer-group',
-                'fun-activities': 'fa-gamepad',
-                'blackboard-diagrams': 'fa-chalkboard',
-                'knowledge-base': 'fa-brain',
-                'student-progress': 'fa-chart-line'
-            };
-            return icons[feature] || 'fa-star';
-        }
-
-        function closeDemoModal() {
-            const modal = document.getElementById('demoModal');
-            if (modal) {
-                modal.classList.remove('active');
-            }
-        }
-
-        // Add this to ensure auth state is properly handled
-        auth.onAuthStateChanged((user) => {
-            console.log('Auth state changed:', user ? 'Logged in' : 'Logged out');
-            if (user) {
-                updateUIForLoggedInUser(user);
-                // Store user info in localStorage for other pages
-                localStorage.setItem('sahayak_token', user.uid);
-                localStorage.setItem('sahayak_user_id', user.uid);
-                localStorage.setItem('sahayak_user_name', user.displayName || user.email);
-            } else {
-                updateUIForLoggedOutUser();
-                // Clear stored auth info
-                localStorage.removeItem('sahayak_token');
-                localStorage.removeItem('sahayak_user_id');
-                localStorage.removeItem('sahayak_user_name');
+    // Feature navigation cards - Fixed navigation
+    document.querySelectorAll('.feature-nav-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            const feature = card.getAttribute('data-feature');
+            if (feature) {
+                // Direct navigation to feature pages
+                navigateToFeature(feature);
             }
         });
-
-        // Also update the signOut function to clear localStorage
-        async function signOut() {
-            try {
-                await auth.signOut();
-                // Clear localStorage
-                localStorage.removeItem('sahayak_token');
-                localStorage.removeItem('sahayak_user_id');
-                localStorage.removeItem('sahayak_user_name');
-                showToast('Signed out successfully', 'success');
-                updateUIForLoggedOutUser();
-                hideProfileDropdown();
-                // Redirect to home page
-                window.location.href = '/';
-            } catch (error) {
-                console.error('Sign out error:', error);
-                showToast('Sign out failed', 'error');
-            }
+    });
+    
+    // Demo button
+    document.getElementById('demoBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        openDemoModal('lesson-plan');
+    });
+    
+    // Book demo button
+    document.getElementById('bookDemoBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        openDemoModal('lesson-plan');
+    });
+    
+    // Modal close buttons
+    document.getElementById('closeDemoModal')?.addEventListener('click', closeDemoModal);
+    document.getElementById('closeDemoBtn')?.addEventListener('click', closeDemoModal);
+    
+    // Close modal when clicking outside
+    document.getElementById('demoModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'demoModal') {
+            closeDemoModal();
         }
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+                document.getElementById('mobileMenu')?.classList.add('hidden');
+            }
+        });
+    });
+    
+    // Language selector
+    const langSelector = document.querySelector('.language-selector');
+    if (langSelector) {
+        const langDropdown = langSelector.querySelector('.dropdown');
+        
+        langSelector.addEventListener('click', (e) => {
+            if (e.target.closest('button')) {
+                langDropdown.classList.toggle('hidden');
+            }
+        });
+        
+        document.querySelectorAll('.dropdown a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const language = link.textContent;
+                const button = langSelector.querySelector('button');
+                button.innerHTML = `
+                    <i class="fas fa-language gradient-text"></i>
+                    <span>${language}</span>
+                    <i class="fas fa-chevron-down text-sm"></i>
+                `;
+                langDropdown.classList.add('hidden');
+                showToast(`Language changed to ${language}`, 'info');
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!langSelector.contains(e.target)) {
+                langDropdown?.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Handle "Get Started" and other CTA buttons
+    document.querySelectorAll('[onclick="showSignupPage()"]').forEach(btn => {
+        btn.removeAttribute('onclick');
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSignupPage();
+        });
+    });
+    
+    // Handle login buttons
+    document.querySelectorAll('[onclick="openSimpleLoginModal()"]').forEach(btn => {
+        btn.removeAttribute('onclick');
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openSimpleLoginModal();
+        });
+    });
+}
+
+function navigateToFeature(feature) {
+    // Check if user is logged in
+    const user = auth.currentUser;
+    
+    const featureRoutes = {
+        'lesson-plan': 'lesson_planning.html',
+        'differentiated-materials': 'Differentiated_materials.html',
+        'fun-activities': 'fun_activities.html',
+        'blackboard-diagrams': 'blackboard_diagrams.html',
+        'knowledge-base': 'knowledge_base.html',
+        'student-progress': 'Student_tracking.html'
+    };
+    
+    const targetPage = featureRoutes[feature];
+    
+    if (!targetPage) {
+        showToast('Feature coming soon!', 'info');
+        return;
+    }
+    
+    if (user) {
+        // User is logged in, navigate to feature page
+        window.location.href = targetPage;
+    } else {
+        // User not logged in, show signup prompt
+        showToast('Please sign up to access this feature', 'info');
+        showSignupPage();
+    }
+}
+
+        function openDemoModal(feature) {
+    const modal = document.getElementById('demoModal');
+    const demoContent = document.getElementById('demoContent');
+    const tryFeatureBtn = document.getElementById('tryFeatureBtn');
+    
+    if (!modal) return;
+    
+    modal.classList.add('active');
+    demoContent.innerHTML = `
+        <div class="text-center py-8">
+            <div class="spinner mx-auto mb-4"></div>
+            <p class="text-gray-400">Loading demo...</p>
+        </div>
+    `;
+    
+    const featureTitles = {
+        'lesson-plan': 'AI Lesson Planning',
+        'differentiated-materials': 'Differentiated Materials',
+        'fun-activities': 'Educational Games',
+        'blackboard-diagrams': 'Visual Aids',
+        'knowledge-base': 'Knowledge Base',
+        'student-progress': 'Student Progress Tracking'
+    };
+    
+    const featureDescriptions = {
+        'lesson-plan': 'Create comprehensive lesson plans in minutes. AI generates learning objectives, activities, assessments, and teaching strategies tailored to your grade level.',
+        'differentiated-materials': 'Generate worksheets and learning materials at multiple grade levels from a single source. Perfect for multi-grade classrooms!',
+        'fun-activities': 'Access 50+ educational games and activities that work with limited resources. Make learning fun and engaging!',
+        'blackboard-diagrams': 'Create simple, easy-to-draw diagrams for your blackboard. Step-by-step instructions for visual teaching.',
+        'knowledge-base': 'Get simple explanations for complex concepts with local language support and cultural analogies.',
+        'student-progress': 'Track individual student progress, generate reports, and identify learning gaps with visual analytics.'
+    };
+    
+    const header = document.querySelector('#demoModal .modal-header h3');
+    if (header) {
+        header.textContent = featureTitles[feature] || 'Feature Demo';
+    }
+    
+    setTimeout(() => {
+        demoContent.innerHTML = `
+            <div class="space-y-4">
+                <div class="glass rounded-xl p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-600/5 flex items-center justify-center">
+                            <i class="fas ${getFeatureIcon(feature)} text-2xl gradient-text"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold">${featureTitles[feature] || 'Feature Demo'}</h4>
+                            <p class="text-sm text-gray-400">AI-Powered Teaching Assistant</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">
+                        ${featureDescriptions[feature] || 'Transform your teaching with Sahayak AI. Save hours of preparation time and deliver better lessons.'}
+                    </p>
+                    <div class="mt-4 p-3 bg-purple-600/10 rounded-lg">
+                        <div class="flex items-center gap-2 text-sm text-purple-300">
+                            <i class="fas fa-star"></i>
+                            <span>Used by 500+ teachers across India</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center text-sm text-gray-500 justify-center gap-4">
+                    <div class="flex items-center gap-1">
+                        <i class="fas fa-bolt text-amber-500"></i>
+                        <span>Instant generation</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <i class="fas fa-language text-emerald-500"></i>
+                        <span>8 languages</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <i class="fas fa-wifi-slash text-blue-500"></i>
+                        <span>Works offline</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }, 500);
+    
+    // Update try feature button
+    if (tryFeatureBtn) {
+        tryFeatureBtn.onclick = () => {
+            closeDemoModal();
+            navigateToFeature(feature);
+        };
+    }
+}
+
+function getFeatureIcon(feature) {
+    const icons = {
+        'lesson-plan': 'fa-calendar-alt',
+        'differentiated-materials': 'fa-layer-group',
+        'fun-activities': 'fa-gamepad',
+        'blackboard-diagrams': 'fa-chalkboard',
+        'knowledge-base': 'fa-brain',
+        'student-progress': 'fa-chart-line'
+    };
+    return icons[feature] || 'fa-star';
+}
+
+function closeDemoModal() {
+    const modal = document.getElementById('demoModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+// Add this to ensure auth state is properly handled
+auth.onAuthStateChanged((user) => {
+    console.log('Auth state changed:', user ? 'Logged in' : 'Logged out');
+    if (user) {
+        updateUIForLoggedInUser(user);
+        // Store user info in localStorage for other pages
+        localStorage.setItem('sahayak_token', user.uid);
+        localStorage.setItem('sahayak_user_id', user.uid);
+        localStorage.setItem('sahayak_user_name', user.displayName || user.email);
+    } else {
+        updateUIForLoggedOutUser();
+        // Clear stored auth info
+        localStorage.removeItem('sahayak_token');
+        localStorage.removeItem('sahayak_user_id');
+        localStorage.removeItem('sahayak_user_name');
+    }
+});
+
+// Also update the signOut function to clear localStorage
+async function signOut() {
+    try {
+        await auth.signOut();
+        // Clear localStorage
+        localStorage.removeItem('sahayak_token');
+        localStorage.removeItem('sahayak_user_id');
+        localStorage.removeItem('sahayak_user_name');
+        showToast('Signed out successfully', 'success');
+        updateUIForLoggedOutUser();
+        hideProfileDropdown();
+        // Redirect to home page
+        window.location.href = '/';
+    } catch (error) {
+        console.error('Sign out error:', error);
+        showToast('Sign out failed', 'error');
+    }
+}
     </script>
 </body>
 </html>
