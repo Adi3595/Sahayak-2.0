@@ -1949,42 +1949,6 @@
         });
     }
     
-    function setupFileUploads() {
-        // PDF Summarizer file upload
-        const pdfUploadArea = document.getElementById('pdfUploadArea');
-        const pdfFileInput = document.getElementById('pdfFileInput');
-        
-        if (pdfUploadArea) {
-            pdfUploadArea.addEventListener('click', () => pdfFileInput.click());
-            setupFilePreview(pdfFileInput, pdfUploadArea);
-        }
-        
-        // Worksheet file upload
-        const worksheetUploadArea = document.getElementById('worksheetUploadArea');
-        const worksheetFileInput = document.getElementById('worksheetFileInput');
-        
-        if (worksheetUploadArea) {
-            worksheetUploadArea.addEventListener('click', () => worksheetFileInput.click());
-            setupFilePreview(worksheetFileInput, worksheetUploadArea);
-        }
-        
-        // PPT file upload
-        const pptUploadArea = document.getElementById('pptUploadArea');
-        const pptFileInput = document.getElementById('pptFileInput');
-        
-        if (pptUploadArea) {
-            pptUploadArea.addEventListener('click', () => pptFileInput.click());
-            setupFilePreview(pptFileInput, pptUploadArea);
-        }
-        
-        // Add drag and drop functionality
-        [pdfUploadArea, worksheetUploadArea, pptUploadArea].forEach(area => {
-            if (area) {
-                setupDragAndDrop(area);
-            }
-        });
-    }
-    
     function setupFilePreview(fileInput, uploadArea) {
         fileInput.addEventListener('change', function() {
             if (this.files.length) {
@@ -2216,11 +2180,25 @@
     }
     
     // Real PDF Summarizer Function with proper authentication
+    // Replace your existing generateSummary function with this:
+
     async function generateSummary() {
         const fileInput = document.getElementById('pdfFileInput');
-        const pageStart = document.getElementById('pageStart').value;
-        const pageEnd = document.getElementById('pageEnd').value || null;
-        const summaryLength = document.getElementById('summaryLength').value;
+        
+        // Check if file input exists
+        if (!fileInput) {
+            showMessage('File input element not found', 'error');
+            return;
+        }
+        
+        const pageStart = document.getElementById('pageStart');
+        const pageEnd = document.getElementById('pageEnd');
+        const summaryLength = document.getElementById('summaryLength');
+        
+        if (!pageStart || !summaryLength) {
+            showMessage('Form elements not found', 'error');
+            return;
+        }
         
         if (!authToken) {
             showMessage('Please login first', 'error');
@@ -2228,7 +2206,7 @@
             return;
         }
         
-        if (!fileInput.files.length) {
+        if (!fileInput.files || !fileInput.files.length) {
             showMessage('Please select a file first', 'error');
             return;
         }
@@ -2236,15 +2214,15 @@
         const loading = document.getElementById('summaryLoading');
         const preview = document.getElementById('summaryPreview');
         
-        loading.style.display = 'block';
-        preview.style.display = 'none';
+        if (loading) loading.style.display = 'block';
+        if (preview) preview.style.display = 'none';
         
         try {
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
-            formData.append('summary_length', summaryLength);
-            formData.append('page_start', pageStart);
-            if (pageEnd) formData.append('page_end', pageEnd);
+            formData.append('summary_length', summaryLength.value);
+            formData.append('page_start', pageStart.value);
+            if (pageEnd && pageEnd.value) formData.append('page_end', pageEnd.value);
             
             const response = await fetch(`${API_BASE_URL}/summarize-pdf/`, {
                 method: 'POST',
@@ -2265,53 +2243,65 @@
             
             const result = await response.json();
             
-            loading.style.display = 'none';
-            preview.style.display = 'block';
+            if (loading) loading.style.display = 'none';
+            if (preview) preview.style.display = 'block';
             
-            // Display summary
-            document.getElementById('summaryContent').innerHTML = `
-                <div style="background: rgba(255, 255, 255, 0.03); padding: 1.5rem; border-radius: 0.75rem;">
-                    <h4 style="color: var(--primary); margin-bottom: 1rem;">
-                        AI-Generated Summary (${summaryLength})
-                    </h4>
-                    <p style="white-space: pre-wrap; line-height: 1.6;">${result.summary}</p>
-                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-                        <small style="color: var(--text-secondary);">
-                            Pages: ${result.page_range}<br>
-                            File: ${fileInput.files[0].name}
-                        </small>
+            const summaryContent = document.getElementById('summaryContent');
+            if (summaryContent) {
+                summaryContent.innerHTML = `
+                    <div style="background: rgba(255, 255, 255, 0.03); padding: 1.5rem; border-radius: 0.75rem;">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem;">
+                            AI-Generated Summary (${summaryLength.value})
+                        </h4>
+                        <p style="white-space: pre-wrap; line-height: 1.6;">${result.summary}</p>
+                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                            <small style="color: var(--text-secondary);">
+                                Pages: ${result.page_range || 'All'}<br>
+                                File: ${fileInput.files[0].name}
+                            </small>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
             
-            // Update download button
             const downloadBtn = document.getElementById('downloadSummaryPdf');
-            downloadBtn.onclick = () => {
-                window.open(`${API_BASE_URL}${result.download_url}`, '_blank');
-            };
+            if (downloadBtn) {
+                downloadBtn.onclick = () => {
+                    window.open(`${API_BASE_URL}${result.download_url}`, '_blank');
+                };
+            }
             
-            // Copy text button
             const copyBtn = document.getElementById('copySummaryText');
-            copyBtn.onclick = () => {
-                navigator.clipboard.writeText(result.summary);
-                showMessage('Summary copied to clipboard!', 'success');
-            };
+            if (copyBtn) {
+                copyBtn.onclick = () => {
+                    navigator.clipboard.writeText(result.summary);
+                    showMessage('Summary copied to clipboard!', 'success');
+                };
+            }
             
             showMessage('Summary generated successfully!', 'success');
         } catch (error) {
-            loading.style.display = 'none';
+            if (loading) loading.style.display = 'none';
             showMessage(`Error: ${error.message}`, 'error');
         }
     }
-    
-    // Real Worksheet Generator Function
+
+    // Also update the generateWorksheet function with null checks:
+
     async function generateWorksheet() {
         const fileInput = document.getElementById('worksheetFileInput');
+        
+        if (!fileInput) {
+            showMessage('File input element not found', 'error');
+            return;
+        }
+        
         const selectedGrades = Array.from(document.querySelectorAll('.grade-option[data-grade].selected'))
             .map(el => el.getAttribute('data-grade'));
         const selectedQuestionTypes = Array.from(document.querySelectorAll('.question-type.selected'))
             .map(el => el.getAttribute('data-type'));
-        const difficulty = document.getElementById('difficulty').value;
+        const difficultySelect = document.getElementById('difficulty');
+        const difficulty = difficultySelect ? difficultySelect.value : 'medium';
         
         if (!authToken) {
             showMessage('Please login first', 'error');
@@ -2319,7 +2309,7 @@
             return;
         }
         
-        if (!fileInput.files.length) {
+        if (!fileInput.files || !fileInput.files.length) {
             showMessage('Please select a file first', 'error');
             return;
         }
@@ -2337,9 +2327,11 @@
         const loading = document.getElementById('worksheetLoading');
         const grid = document.getElementById('worksheetsGrid');
         
-        loading.style.display = 'block';
-        grid.style.display = 'none';
-        grid.innerHTML = '';
+        if (loading) loading.style.display = 'block';
+        if (grid) {
+            grid.style.display = 'none';
+            grid.innerHTML = '';
+        }
         
         try {
             const formData = new FormData();
@@ -2368,57 +2360,96 @@
             
             const result = await response.json();
             
-            loading.style.display = 'none';
-            grid.style.display = 'grid';
-            
-            // Display worksheets for each grade
-            let worksheetsHTML = '';
-            
-            for (const [grade, worksheet] of Object.entries(result.worksheets)) {
-                const gradeDisplay = grade === 'k' ? 'Kindergarten' : 
-                                   grade === '1-3' ? 'Grades 1-3' :
-                                   grade === '4-6' ? 'Grades 4-6' :
-                                   grade === '7-9' ? 'Grades 7-9' : 'Grades 10-12';
+            if (loading) loading.style.display = 'none';
+            if (grid) {
+                grid.style.display = 'grid';
                 
-                worksheetsHTML += `
-                    <div class="worksheet-card">
-                        <div class="worksheet-header">
-                            <h3 style="font-weight: 600;">${result.topic || 'Worksheet'}</h3>
-                            <span class="worksheet-grade">${gradeDisplay}</span>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                ${selectedQuestionTypes.map(type => `
-                                    <span style="background: rgba(124, 58, 237, 0.2); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
-                                        ${type.toUpperCase()}
-                                    </span>
-                                `).join('')}
+                let worksheetsHTML = '';
+                
+                for (const [grade, worksheet] of Object.entries(result.worksheets)) {
+                    const gradeDisplay = grade === 'k' ? 'Kindergarten' : 
+                                    grade === '1-3' ? 'Grades 1-3' :
+                                    grade === '4-6' ? 'Grades 4-6' :
+                                    grade === '7-9' ? 'Grades 7-9' : 'Grades 10-12';
+                    
+                    worksheetsHTML += `
+                        <div class="worksheet-card">
+                            <div class="worksheet-header">
+                                <h3 style="font-weight: 600;">${result.topic || 'Worksheet'}</h3>
+                                <span class="worksheet-grade">${gradeDisplay}</span>
                             </div>
-                            <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                                ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} difficulty
-                            </p>
+                            <div style="margin-bottom: 1rem;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    ${selectedQuestionTypes.map(type => `
+                                        <span style="background: rgba(124, 58, 237, 0.2); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                                            ${type.toUpperCase()}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} difficulty
+                                </p>
+                            </div>
+                            <div class="download-options">
+                                <button class="btn download-pdf" style="flex: 1; padding: 0.75rem;"
+                                        onclick="window.open('${API_BASE_URL}${worksheet.pdf}', '_blank')">
+                                    <i class="fas fa-download"></i> PDF
+                                </button>
+                                <button class="btn-secondary download-docx" style="flex: 1; padding: 0.75rem;"
+                                        onclick="window.open('${API_BASE_URL}${worksheet.docx}', '_blank')">
+                                    <i class="fas fa-file-word"></i> DOCX
+                                </button>
+                            </div>
                         </div>
-                        <div class="download-options">
-                            <button class="btn download-pdf" style="flex: 1; padding: 0.75rem;"
-                                    onclick="window.open('${API_BASE_URL}${worksheet.pdf}', '_blank')">
-                                <i class="fas fa-download"></i> PDF
-                            </button>
-                            <button class="btn-secondary download-docx" style="flex: 1; padding: 0.75rem;"
-                                    onclick="window.open('${API_BASE_URL}${worksheet.docx}', '_blank')">
-                                <i class="fas fa-file-word"></i> DOCX
-                            </button>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
+                
+                grid.innerHTML = worksheetsHTML;
             }
-            
-            grid.innerHTML = worksheetsHTML;
             
             showMessage(result.message || 'Worksheets generated successfully!', 'success');
         } catch (error) {
-            loading.style.display = 'none';
+            if (loading) loading.style.display = 'none';
             showMessage(`Error: ${error.message}`, 'error');
         }
+    }
+
+    // Also update the setupFileUploads function to ensure file inputs exist:
+
+    function setupFileUploads() {
+        // PDF Summarizer file upload
+        const pdfUploadArea = document.getElementById('pdfUploadArea');
+        const pdfFileInput = document.getElementById('pdfFileInput');
+        
+        if (pdfUploadArea && pdfFileInput) {
+            pdfUploadArea.addEventListener('click', () => pdfFileInput.click());
+            setupFilePreview(pdfFileInput, pdfUploadArea);
+        }
+        
+        // Worksheet file upload
+        const worksheetUploadArea = document.getElementById('worksheetUploadArea');
+        const worksheetFileInput = document.getElementById('worksheetFileInput');
+        
+        if (worksheetUploadArea && worksheetFileInput) {
+            worksheetUploadArea.addEventListener('click', () => worksheetFileInput.click());
+            setupFilePreview(worksheetFileInput, worksheetUploadArea);
+        }
+        
+        // PPT file upload
+        const pptUploadArea = document.getElementById('pptUploadArea');
+        const pptFileInput = document.getElementById('pptFileInput');
+        
+        if (pptUploadArea && pptFileInput) {
+            pptUploadArea.addEventListener('click', () => pptFileInput.click());
+            setupFilePreview(pptFileInput, pptUploadArea);
+        }
+        
+        // Add drag and drop functionality for areas that exist
+        [pdfUploadArea, worksheetUploadArea, pptUploadArea].forEach(area => {
+            if (area) {
+                setupDragAndDrop(area);
+            }
+        });
     }
     
     // Real Content Generator Function
